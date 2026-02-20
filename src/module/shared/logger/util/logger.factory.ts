@@ -22,11 +22,11 @@ export const initLogger = (appName: string) => {
 	);
 
 	return createLogger({
-		level: env === "test" ? "silent" : "info",
+		level: "info",
 		defaultMeta: { environment: env },
 		transports: [
 			new transports.Console({
-				format: env === "development" ? consoleFormat : serverFormat,
+				format: env === "test" ? consoleFormat : serverFormat,
 			}),
 		],
 	});

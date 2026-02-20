@@ -8,11 +8,11 @@ describe("Health (e2e)", () => {
 	let app: INestApplication;
 
 	beforeAll(async () => {
-		const moduleFixture: TestingModule = await Test.createTestingModule({
+		const module: TestingModule = await Test.createTestingModule({
 			imports: [MatchEngineModule],
 		}).compile();
 
-		app = moduleFixture.createNestApplication();
+		app = module.createNestApplication();
 		await app.init();
 	});
 
@@ -26,6 +26,6 @@ describe("Health (e2e)", () => {
 			.expect(200);
 
 		expect(response.body).toHaveProperty("status");
-		expect(["OK", "ERROR"]).toContain(response.body.status);
+		expect(response.body.status).toBe("OK");
 	});
 });

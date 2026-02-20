@@ -1,6 +1,7 @@
 import { Inject, Module, type OnApplicationShutdown } from "@nestjs/common";
 import { ConfigModule } from "@shared/config/config.module";
 import { ConfigService } from "@shared/config/service/config.service";
+import { AppLogger } from "@shared/logger/service/app-logger.service";
 import {
 	createDatabaseConnection,
 	type DatabaseConnectionFactory,
@@ -31,12 +32,14 @@ export class DrizzlePersistenceModule implements OnApplicationShutdown {
 	@Inject(DATABASE_CONNECTION_FACTORY)
 	private readonly connectionFactory: DatabaseConnectionFactory;
 
+	constructor(private readonly logger: AppLogger) {}
+
 	async onApplicationShutdown(): Promise<void> {
 		const pool = this.connectionFactory.pool;
 
 		if (pool) {
 			await pool.end();
-			console.log("Database connection pool closed");
+			this.logger.log("Database connection pool closed");
 		}
 	}
 }
