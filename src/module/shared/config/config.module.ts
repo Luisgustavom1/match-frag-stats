@@ -14,6 +14,7 @@ export class ConfigModule {
 			imports: [
 				NestConfigModule.forRoot({
 					...options,
+					envFilePath: options?.envFilePath ?? [".env"],
 					expandVariables: true,
 					load: options?.load ? [factory, ...options.load] : [factory],
 				}),
