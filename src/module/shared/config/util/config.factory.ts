@@ -1,4 +1,3 @@
-import { ConfigException } from "../exception/config.exception";
 import { configSchema } from "./config.schema";
 import type { Config } from "./config.type";
 
@@ -20,7 +19,5 @@ export const factory = (): Config => {
 		return result.data;
 	}
 
-	throw new ConfigException(
-		`Invalid application configuration: ${result.error.message}`,
-	);
+	throw new Error(`Invalid application configuration: ${result.error.message}`);
 };

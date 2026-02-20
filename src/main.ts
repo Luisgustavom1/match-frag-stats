@@ -8,6 +8,7 @@ async function bootstrap() {
 		bufferLogs: true,
 	});
 	app.useLogger(logger);
+	app.enableShutdownHooks();
 	await app.listen(3000);
 }
 bootstrap();

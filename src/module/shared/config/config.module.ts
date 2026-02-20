@@ -1,12 +1,15 @@
-import { type DynamicModule, Module } from "@nestjs/common";
+import { DynamicModule, Module } from "@nestjs/common";
 import {
-	type ConfigModuleOptions,
+	ConfigModuleOptions,
 	ConfigModule as NestConfigModule,
 } from "@nestjs/config";
 import { ConfigService } from "./service/config.service";
 import { factory } from "./util/config.factory";
 
-@Module({})
+@Module({
+	providers: [ConfigService],
+	exports: [ConfigService],
+})
 export class ConfigModule {
 	static forRoot(options?: ConfigModuleOptions): DynamicModule {
 		return {

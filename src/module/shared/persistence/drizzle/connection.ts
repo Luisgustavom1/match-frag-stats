@@ -1,10 +1,23 @@
-import { ConfigService } from "@shared/config/service/config.service";
-import "dotenv/config";
+import type { ConfigService } from "@shared/config/service/config.service";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
-const pool = new Pool({
-	connectionString: ConfigService.get("database.url"),
-});
+export type DatabaseConnection = NodePgDatabase;
 
-export const db = drizzle({ client: pool });
+export interface DatabaseConnectionFactory {
+	pool: Pool;
+	db: DatabaseConnection;
+}
+
+export const createDatabaseConnection = (
+	configService: ConfigService,
+): DatabaseConnectionFactory => {
+	const pool = new Pool({
+		connectionString: configService.get("database.url"),
+	});
+
+	const db = drizzle({ client: pool });
+
+	return { pool, db };
+};

@@ -21,12 +21,18 @@
 			},
 			"correctness": {
 				"noUnusedImports": "error"
+			},
+			"style": {
+				"useImportType": "off"
 			}
 		}
 	},
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"
+		},
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
 		}
 	},
 	"assist": {
