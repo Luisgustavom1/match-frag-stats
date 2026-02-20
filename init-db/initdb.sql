@@ -1,0 +1,1 @@
+CREATE DATABASE frag_stats_db;

@@ -1,0 +1,18 @@
+name: 'frag_stats'
+
+services:
+  db:
+    image: postgres:18.2-alpine
+    container_name: frag_stats_db
+    profiles: ['all', 'deps']
+    environment:
+      POSTGRES_USER: frag_stats
+      POSTGRES_PASSWORD: frag_stats
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+
+volumes:
+  db-data:
