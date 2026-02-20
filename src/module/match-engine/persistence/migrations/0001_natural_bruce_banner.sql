@@ -1,0 +1,1 @@
+ALTER TABLE "match_engine"."match" ALTER COLUMN "ended_at" DROP NOT NULL;
