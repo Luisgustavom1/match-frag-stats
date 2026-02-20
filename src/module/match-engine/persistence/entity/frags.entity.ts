@@ -6,10 +6,8 @@ import { matchEngineSchema } from "./schema";
 export const frags = matchEngineSchema.table("frags", {
 	id: serial("id").primaryKey(),
 	matchId: integer("match_id"),
-
 	// nullable to <WORLD>
 	killerId: integer("killer_id"),
-
 	victimId: integer("victim_id"),
 	weapon: varchar("weapon", { length: 50 }).notNull(),
 	occurredAt: timestamp("occurred_at").notNull(),
