@@ -14,7 +14,12 @@ export const createDatabaseConnection = (
 	configService: ConfigService,
 ): DatabaseConnectionFactory => {
 	const pool = new Pool({
-		connectionString: configService.get("database.url"),
+		host: configService.get("database.host"),
+		port: configService.get("database.port"),
+		user: configService.get("database.username"),
+		password: configService.get("database.password"),
+		database: configService.get("database.database"),
+		ssl: false,
 	});
 
 	const db = drizzle({ client: pool });

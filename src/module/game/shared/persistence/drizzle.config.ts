@@ -5,6 +5,11 @@ export default defineConfig({
 	out: "./src/module/game/shared/persistence/migrations",
 	dialect: "postgresql",
 	dbCredentials: {
-		url: process.env.DATABASE_URL!,
+		database: process.env.DATABASE_NAME!,
+		host: process.env.DATABASE_HOST!,
+		password: process.env.DATABASE_PASSWORD!,
+		port: Number(process.env.DATABASE_PORT!),
+		user: process.env.DATABASE_USERNAME!,
+		ssl: false,
 	},
 });

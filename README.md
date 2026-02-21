@@ -95,25 +95,31 @@ A aplicação estará disponível em `http://localhost:3000`.
 
 ### Opção B — Banco em Docker, aplicação local
 
-#### 1. Subir apenas o banco de dados
+#### 1. Copiar variáveis de ambiente
+
+```bash
+cp .env.example .env
+```
+
+#### 2. Subir apenas o banco de dados
 
 ```bash
 pnpm docker:start:db
 ```
 
-#### 2. Instalar dependências
+#### 3. Instalar dependências
 
 ```bash
 pnpm install
 ```
 
-#### 3. Rodar as migrations
+#### 4. Rodar as migrations
 
 ```bash
 pnpm game:db:migrate
 ```
 
-#### 4. Iniciar a aplicação
+#### 5. Iniciar a aplicação
 
 ```bash
 # desenvolvimento (watch mode)
