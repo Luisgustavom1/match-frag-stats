@@ -5,10 +5,12 @@ import { matchEngineSchema } from "./schema";
 
 export const frags = matchEngineSchema.table("frags", {
 	id: serial("id").primaryKey(),
-	matchId: integer("match_id"),
+	matchId: integer("match_id")
+		.references(() => match.id)
+		.notNull(),
 	// nullable to <WORLD>
-	killerId: integer("killer_id"),
-	victimId: integer("victim_id"),
+	killerId: integer("killer_id").references(() => player.id),
+	victimId: integer("victim_id").references(() => player.id),
 	weapon: varchar("weapon", { length: 50 }).notNull(),
 	occurredAt: timestamp("occurred_at").notNull(),
 });

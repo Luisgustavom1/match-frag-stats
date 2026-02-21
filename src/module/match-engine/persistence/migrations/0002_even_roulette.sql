@@ -1,0 +1,4 @@
+ALTER TABLE "match_engine"."frags" ALTER COLUMN "match_id" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "match_engine"."frags" ADD CONSTRAINT "frags_match_id_match_id_fk" FOREIGN KEY ("match_id") REFERENCES "match_engine"."match"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "match_engine"."frags" ADD CONSTRAINT "frags_killer_id_player_id_fk" FOREIGN KEY ("killer_id") REFERENCES "match_engine"."player"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "match_engine"."frags" ADD CONSTRAINT "frags_victim_id_player_id_fk" FOREIGN KEY ("victim_id") REFERENCES "match_engine"."player"("id") ON DELETE no action ON UPDATE no action;
