@@ -15,7 +15,7 @@ export interface MatchRanking {
 
 @Injectable()
 export class RankingCalculatorService {
-	calculate(frags: FragsModel[]): PlayerStats[] {
+	calculate(frags: readonly FragsModel[]): PlayerStats[] {
 		const statsMapByPlayer = new Map<string, PlayerStats>();
 
 		for (const frag of frags) {

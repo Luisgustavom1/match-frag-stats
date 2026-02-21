@@ -83,9 +83,8 @@ export class MatchAggregatePersistenceService {
 	private getUniqueUsernamePlayers(matches: MatchModel[]) {
 		const allUsernames = new Set<string>();
 		for (const match of matches) {
-			for (const frag of match.frags) {
-				allUsernames.add(frag.killerUsername);
-				allUsernames.add(frag.victimUsername);
+			for (const { username } of match.players) {
+				allUsernames.add(username);
 			}
 		}
 		return [...allUsernames];

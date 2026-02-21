@@ -257,5 +257,22 @@ This is an invalid line
 			expect(result).toHaveLength(1);
 			expect(result[0].frags).toHaveLength(0);
 		});
+
+		it("should throw error when a match exceeds 20 players", () => {
+			// 10 frags, each with 2 *disjoint* players → 20 unique players total
+			const killLines = Array.from(
+				{ length: 10 },
+				(_, i) =>
+					`23/04/2019 15:3${i}:00 - player${i * 2 + 1} killed player${i * 2 + 2} using AK47`,
+			).join("\n");
+
+			// 21st unique player introduced as victim
+			const logContent = `23/04/2019 15:34:22 - New match 11348965 has started
+${killLines}
+23/04/2019 15:50:00 - player1 killed player21 using AK47
+23/04/2019 15:55:00 - Match 11348965 has ended`;
+
+			expect(() => service.parse(logContent)).toThrow(BadRequestException);
+		});
 	});
 });
