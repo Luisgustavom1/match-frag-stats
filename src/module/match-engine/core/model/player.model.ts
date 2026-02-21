@@ -1,4 +1,4 @@
-export class Player {
+export class PlayerModel {
 	id?: number;
 	username: string;
 	createdAt: Date;

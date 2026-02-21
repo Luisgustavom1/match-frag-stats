@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { InferSelectModel, relations } from "drizzle-orm";
 import { serial, timestamp, varchar } from "drizzle-orm/pg-core";
 import { frags } from ".";
 import { matchEngineSchema } from "./schema";
@@ -13,3 +13,5 @@ export const playersRelations = relations(player, ({ many }) => ({
 	fragsAsKiller: many(frags, { relationName: "killer" }),
 	fragsAsVictim: many(frags, { relationName: "victim" }),
 }));
+
+export type PlayerEntity = InferSelectModel<typeof player>;

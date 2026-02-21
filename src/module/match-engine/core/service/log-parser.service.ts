@@ -1,8 +1,8 @@
-import { Match } from "@match-engine/core/model/match.model";
+import { MatchModel } from "@match-engine/core/model/match.model";
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { AppLogger } from "@shared/logger/service/app-logger.service";
 import { parse } from "date-fns";
-import { Frags } from "../model/frags.model";
+import { FragsModel } from "../model/frags.model";
 import { Player } from "../model/player.model";
 
 @Injectable()
@@ -16,7 +16,7 @@ export class LogParserService {
 
 	constructor(private readonly logger: AppLogger) {}
 
-	parse(logContent: string): Match[] {
+	parse(logContent: string): MatchModel[] {
 		if (!logContent || logContent.trim() === "") {
 			this.logger.log("empty log received");
 			return [];
@@ -24,9 +24,9 @@ export class LogParserService {
 
 		// TODO: improve parsing performance by streaming the file line by line instead of loading entire content into memory
 		const lines = logContent.split("\n");
-		const matches: Match[] = [];
+		const matches: MatchModel[] = [];
 
-		let lastStartedMatch: Match | null = null;
+		let lastStartedMatch: MatchModel | null = null;
 		for (const line of lines) {
 			const match = this.processLine(line, lastStartedMatch);
 			if (!match) continue;
@@ -40,8 +40,8 @@ export class LogParserService {
 
 	private processLine(
 		line: string,
-		lastStartedMatch: Match | null,
-	): Match | undefined {
+		lastStartedMatch: MatchModel | null,
+	): MatchModel | undefined {
 		const trimmedLine = line.trim();
 		if (trimmedLine.length === 0) return;
 
@@ -61,7 +61,7 @@ export class LogParserService {
 				});
 			}
 
-			const newMatch = new Match({
+			const newMatch = new MatchModel({
 				externalId: matchId,
 				startedAt: timestamp,
 				endedAt: null,
@@ -107,7 +107,7 @@ export class LogParserService {
 				username: victim,
 			});
 
-			const frags = new Frags({
+			const frags = new FragsModel({
 				killerUsername: player.username,
 				victimUsername: victimPlayer.username,
 				matchExternalId: lastStartedMatch.externalId,

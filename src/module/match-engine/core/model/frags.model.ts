@@ -1,4 +1,4 @@
-export class Frags {
+export class FragsModel {
 	id: number;
 	matchExternalId: string;
 	killerUsername: string;

@@ -1,11 +1,11 @@
-import { Frags } from "./frags.model";
+import { FragsModel } from "./frags.model";
 
-export class Match {
+export class MatchModel {
 	id: number;
 	externalId: string;
 	startedAt: Date;
 	endedAt: Date | null;
-	frags: Frags[];
+	frags: FragsModel[];
 
 	constructor(params: {
 		id?: number;
@@ -28,7 +28,7 @@ export class Match {
 		this.endedAt = endedAt;
 	}
 
-	addFrag(frag: Frags): void {
+	addFrag(frag: FragsModel): void {
 		this.frags.push(frag);
 	}
 }
