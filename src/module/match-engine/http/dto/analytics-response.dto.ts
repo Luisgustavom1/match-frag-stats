@@ -12,7 +12,7 @@ export class AnalyticsPlayerRankingDto {
 	constructor(stats: PlayerStats, position: number) {
 		this.position = position;
 		this.username = stats.username;
-		this.kills = stats.frags;
+		this.kills = stats.kills;
 		this.deaths = stats.deaths;
 	}
 }

@@ -4,7 +4,7 @@ import type { MatchModel } from "../model/match.model";
 
 export interface PlayerStats {
 	username: string;
-	frags: number;
+	kills: number;
 	deaths: number;
 }
 
@@ -22,16 +22,16 @@ export class RankingCalculatorService {
 			// killer
 			const killerStats = statsMapByPlayer.get(frag.killerUsername) || {
 				username: frag.killerUsername,
-				frags: 0,
+				kills: 0,
 				deaths: 0,
 			};
-			killerStats.frags++;
+			killerStats.kills++;
 			statsMapByPlayer.set(frag.killerUsername, killerStats);
 
 			// deaths
 			const victimStats = statsMapByPlayer.get(frag.victimUsername) || {
 				username: frag.victimUsername,
-				frags: 0,
+				kills: 0,
 				deaths: 0,
 			};
 			victimStats.deaths++;
@@ -40,8 +40,9 @@ export class RankingCalculatorService {
 
 		const sorted = [...statsMapByPlayer.values()];
 		sorted.sort((a, b) => {
-			if (b.frags !== a.frags) return b.frags - a.frags;
-			return a.username.localeCompare(b.username);
+			if (b.kills !== a.kills) return b.kills - a.kills;
+			// if kills are the same, sort by deaths ascending
+			return a.deaths - b.deaths;
 		});
 
 		return sorted;
