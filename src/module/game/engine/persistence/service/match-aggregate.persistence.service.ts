@@ -1,3 +1,4 @@
+import { PlayerModel } from "@match-engine/engine/core/model/player.model";
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { MatchModel } from "@src/module/game/engine/core/model/match.model";
 import { AppLogger } from "@src/module/shared/logger/service/app-logger.service";
@@ -22,11 +23,11 @@ export class MatchAggregatePersistenceService {
 	async persistMatches(matches: MatchModel[]): Promise<MatchModel[]> {
 		if (!matches.length) return [];
 
-		const allUsernames = this.getUniqueUsernamePlayers(matches);
+		const allPlayers = this.getUniquePlayers(matches);
 
 		return await this.dbConn.transaction(async (tx) => {
 			const [savedPlayers, savedMatches] = await Promise.all([
-				this.playerRepository.bulkCreate(allUsernames, tx),
+				this.playerRepository.bulkCreate(allPlayers, tx),
 				this.matchRepository.bulkCreate(matches, tx),
 			]);
 
@@ -40,9 +41,7 @@ export class MatchAggregatePersistenceService {
 			const fragsToInsert: FragEntityParams[] = [];
 			for (const match of savedMatches) {
 				const originalMatch = matchMapByExternalId.get(match.externalId);
-				if (!originalMatch) continue;
-
-				for (const frag of originalMatch.frags) {
+				for (const frag of originalMatch?.frags || []) {
 					const killerId = playerMapByUsername.get(frag.killerUsername)?.id;
 					const victimId = playerMapByUsername.get(frag.victimUsername)?.id;
 
@@ -80,13 +79,18 @@ export class MatchAggregatePersistenceService {
 		});
 	}
 
-	private getUniqueUsernamePlayers(matches: MatchModel[]) {
-		const allUsernames = new Set<string>();
+	private getUniquePlayers(matches: MatchModel[]) {
+		const usernamesSet = new Set<string>();
+		const players: PlayerModel[] = [];
+
 		for (const match of matches) {
-			for (const { username } of match.players) {
-				allUsernames.add(username);
+			for (const player of match.players) {
+				if (usernamesSet.has(player.username)) continue;
+
+				players.push(player);
+				usernamesSet.add(player.username);
 			}
 		}
-		return [...allUsernames];
+		return players;
 	}
 }

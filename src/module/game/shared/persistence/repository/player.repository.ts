@@ -15,21 +15,14 @@ export class PlayerRepository {
 	) {}
 
 	async bulkCreate(
-		usernames: string[],
+		players: PlayerModel[],
 		tx?: Transaction,
 	): Promise<PlayerModel[]> {
-		if (!usernames.length) return [];
+		if (!players.length) return [];
 
 		const insertedPlayers = await (tx || this.dbConn)
 			.insert(player)
-			.values(
-				usernames.map((username) =>
-					PlayerMapper.toEntity({
-						username,
-						createdAt: new Date(),
-					}),
-				),
-			)
+			.values(players.map((player) => PlayerMapper.toEntity(player)))
 			.onConflictDoUpdate({
 				target: player.username,
 				set: {
