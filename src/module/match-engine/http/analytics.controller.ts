@@ -1,6 +1,6 @@
 import { RankMatchesUseCase } from "@match-engine/core/use-case/rank-matches.use-case";
 import { Controller, Get } from "@nestjs/common";
-import { MatchRankingsAnalyticsResponseDto } from "./dto/analytics-response.dto";
+import { MatchRankingsAnalyticsResponseDto } from "./dto/out/analytics-response.dto";
 
 @Controller("match-engine/analytics")
 export class AnalyticsController {

@@ -6,8 +6,8 @@ import {
 	UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { MatchRankingsAnalyticsResponseDto } from "./dto/analytics-response.dto";
-import { MatchLogValidationPipe } from "./dto/match-log.dto";
+import { MatchLogValidationPipe } from "./dto/in/match-log.dto";
+import { MatchRankingsAnalyticsResponseDto } from "./dto/out/analytics-response.dto";
 
 @Controller("match-engine/ingest")
 export class MatchLogController {
