@@ -22,4 +22,20 @@ export class FragsMapper {
 			occurredAt: frag.occurredAt,
 		};
 	}
+
+	static toDomain(
+		entity: FragsEntity,
+		killerUsername: string,
+		victimUsername: string,
+		matchExternalId: string,
+	): FragsModel {
+		return new FragsModel({
+			id: entity.id,
+			matchExternalId,
+			killerUsername,
+			victimUsername,
+			weapon: entity.weapon,
+			occurredAt: entity.occurredAt,
+		});
+	}
 }
