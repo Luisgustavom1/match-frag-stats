@@ -46,7 +46,7 @@ exports[`Ingest Log Controller (e2e) > POST /match-engine/ingest/log > should in
         "username": "Roman",
       },
       {
-        "deaths": 0,
+        "deaths": 1,
         "kills": 1,
         "username": "Bryan",
       },
@@ -54,11 +54,6 @@ exports[`Ingest Log Controller (e2e) > POST /match-engine/ingest/log > should in
         "deaths": 2,
         "kills": 1,
         "username": "Marcus",
-      },
-      {
-        "deaths": 1,
-        "kills": 0,
-        "username": "Bryian",
       },
       {
         "deaths": 1,

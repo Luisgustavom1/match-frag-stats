@@ -3,6 +3,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { DatabaseConnection } from "@shared/persistence/drizzle/connection";
 import { DATABASE_CONNECTION } from "@shared/persistence/drizzle/drizzle-persistence.module";
 import { Transaction } from "@shared/persistence/drizzle/type";
+import { sql } from "drizzle-orm/sql/sql";
 import { player } from "../entity/player.entity";
 import { PlayerMapper } from "../mapper/player.mapper";
 
@@ -29,7 +30,12 @@ export class PlayerRepository {
 					}),
 				),
 			)
-			.onConflictDoNothing()
+			.onConflictDoUpdate({
+				target: player.username,
+				set: {
+					username: sql`excluded.username`,
+				},
+			})
 			.returning();
 
 		return insertedPlayers.map((playerEntity) =>

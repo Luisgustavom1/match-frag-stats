@@ -3,7 +3,6 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { AppLogger } from "@shared/logger/service/app-logger.service";
 import { parse } from "date-fns";
 import { FragsModel } from "../model/frags.model";
-import { Player } from "../model/player.model";
 
 @Injectable()
 export class LogParserService {
@@ -99,19 +98,10 @@ export class LogParserService {
 		if (playerKill) {
 			const [, killer, victim, weapon] = playerKill;
 
-			const player = new Player({
-				username: killer,
-			});
-
-			const victimPlayer = new Player({
-				username: victim,
-			});
-
 			const frags = new FragsModel({
-				killerUsername: player.username,
-				victimUsername: victimPlayer.username,
+				killerUsername: killer,
+				victimUsername: victim,
 				matchExternalId: lastStartedMatch.externalId,
-
 				weapon,
 				occurredAt: timestamp,
 			});

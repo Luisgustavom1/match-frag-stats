@@ -1,10 +1,10 @@
-import { Frags } from "@match-engine/core/model/frags.model";
+import { FragsModel } from "@match-engine/core/model/frags.model";
 import { LogParserService } from "@match-engine/core/service/log-parser.service";
 import { BadRequestException } from "@nestjs/common";
 import { loggerMock } from "test/mocks/logger";
 import { beforeEach, describe, expect, it } from "vitest";
 
-function expectFrag(frag: Frags, expected: Partial<Frags>) {
+function expectFrag(frag: FragsModel, expected: Partial<FragsModel>) {
 	expect(frag.killerUsername).toBe(expected.killerUsername);
 	expect(frag.victimUsername).toBe(expected.victimUsername);
 	expect(frag.weapon).toBe(expected.weapon);

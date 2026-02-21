@@ -9,10 +9,12 @@ export interface FragEntityParams {
 }
 
 export class FragsMapper {
-	static toEntity(params: FragEntityParams): FragsEntity {
+	static toEntity(
+		params: FragEntityParams,
+	): Omit<FragsEntity, "id"> & { id?: number } {
 		const { frag, matchId, killerId, victimId } = params;
 		return {
-			id: frag.id,
+			id: frag.id || undefined,
 			matchId,
 			killerId,
 			victimId,

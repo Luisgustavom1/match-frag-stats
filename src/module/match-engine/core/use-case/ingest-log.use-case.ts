@@ -1,7 +1,8 @@
+import { MatchAggregatePersistenceService } from "@match-engine/persistence/service/match-aggregate.persistence.service";
 import { Injectable } from "@nestjs/common";
 import { AppLogger } from "@shared/logger/service/app-logger.service";
-import { Frags } from "../model/frags.model";
-import type { Match } from "../model/match.model";
+import { FragsModel } from "../model/frags.model";
+import type { MatchModel } from "../model/match.model";
 import { LogParserService } from "../service/log-parser.service";
 
 export interface PlayerStats {
@@ -11,7 +12,7 @@ export interface PlayerStats {
 }
 
 export interface MatchRanking {
-	match: Match;
+	match: MatchModel;
 	ranking: PlayerStats[];
 }
 
@@ -19,6 +20,7 @@ export interface MatchRanking {
 export class IngestLogUseCase {
 	constructor(
 		private readonly logParserService: LogParserService,
+		private readonly matchAggregatePersistenceService: MatchAggregatePersistenceService,
 		private readonly logger: AppLogger,
 	) {}
 
@@ -29,6 +31,8 @@ export class IngestLogUseCase {
 			this.logger.log("no matches found in log");
 			return [];
 		}
+
+		await this.matchAggregatePersistenceService.persistMatches(matches);
 
 		const results: MatchRanking[] = [];
 		for (const match of matches) {
@@ -49,7 +53,7 @@ export class IngestLogUseCase {
 		return results;
 	}
 
-	private calculateRankings(frags: Frags[]): PlayerStats[] {
+	private calculateRankings(frags: FragsModel[]): PlayerStats[] {
 		const statsMapByPlayer = new Map<string, PlayerStats>();
 
 		for (const frag of frags) {
