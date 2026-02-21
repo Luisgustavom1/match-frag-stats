@@ -42,6 +42,11 @@ export class MatchModel {
 	}
 
 	markAsEnd(endedAt: Date): void {
+		if (this.isEnded()) {
+			throw new BadRequestException(`match is already ended`, {
+				cause: { matchId: this.externalId },
+			});
+		}
 		this._endedAt = endedAt;
 	}
 

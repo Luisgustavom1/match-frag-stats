@@ -31,7 +31,7 @@ export class LogParserService {
 			if (!match) continue;
 
 			if (match !== lastStartedMatch) matches.push(match);
-			lastStartedMatch = match.isEnded() ? null : match;
+			lastStartedMatch = match;
 		}
 
 		return matches;
@@ -80,8 +80,9 @@ export class LogParserService {
 		if (matchEnd) {
 			const [, matchId] = matchEnd;
 			if (lastStartedMatch.externalId !== matchId) {
-				this.logger.warn("try ending match without start", { matchId });
-				return;
+				throw new BadRequestException("try ending match without start", {
+					cause: { matchId },
+				});
 			}
 
 			lastStartedMatch.markAsEnd(timestamp);

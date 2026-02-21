@@ -72,4 +72,23 @@ describe("MatchModel", () => {
 			expect(() => match.addFrag(makeFrag("player1", "player2"))).not.toThrow();
 		});
 	});
+
+	describe("markAsEnd", () => {
+		it("should mark the match as ended", () => {
+			const match = makeMatch();
+			const endedAt = new Date();
+
+			match.markAsEnd(endedAt);
+
+			expect(match.isEnded()).toBe(true);
+			expect(match.endedAt).toEqual(endedAt);
+		});
+
+		it("should throw error when try end match already ended", () => {
+			const match = makeMatch();
+			match.markAsEnd(new Date());
+
+			expect(() => match.markAsEnd(new Date())).toThrow(BadRequestException);
+		});
+	});
 });

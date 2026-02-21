@@ -206,12 +206,35 @@ describe("LogParserService", () => {
 			expect(result[0].frags).toHaveLength(1);
 		});
 
-		it("should throw error when match end without start", () => {
+		it("should throw error when try end match without start", () => {
 			const logContent = `23/04/2019 15:39:22 - Match 11348965 has ended`;
 
 			expect(() => service.parse(logContent)).toThrow(
 				new BadRequestException("match not started", {
 					cause: { logEventStr: "Match 11348965 has ended" },
+				}),
+			);
+		});
+
+		it("should throw error when try end match after start other", () => {
+			const logContent = `23/04/2019 15:34:22 - New match 1 has started
+23/04/2019 15:39:22 - Match 2 has ended`;
+
+			expect(() => service.parse(logContent)).toThrow(
+				new BadRequestException("try ending match without start", {
+					cause: { matchId: "2" },
+				}),
+			);
+		});
+
+		it("should throw error when try end match twice", () => {
+			const logContent = `23/04/2019 15:34:22 - New match 1 has started
+23/04/2019 15:39:22 - Match 1 has ended
+23/04/2019 15:40:22 - Match 1 has ended`;
+
+			expect(() => service.parse(logContent)).toThrow(
+				new BadRequestException("match is already ended", {
+					cause: { matchId: "1" },
 				}),
 			);
 		});
