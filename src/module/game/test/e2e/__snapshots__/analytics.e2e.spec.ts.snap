@@ -1,79 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Analytics Controller (e2e) > GET /game/analytics/match/rankings > should return correctly rankings for all matches 1`] = `
-[
-  {
-    "endedAt": "2019-04-23T18:39:22.000Z",
-    "matchId": "11348965",
-    "ranking": [
-      {
-        "deaths": 0,
-        "kills": 2,
-        "position": 1,
-        "username": "Roman",
-      },
-      {
-        "deaths": 2,
-        "kills": 0,
-        "position": 2,
-        "username": "Nick",
-      },
-    ],
-    "startedAt": "2019-04-23T18:34:22.000Z",
-  },
-  {
-    "endedAt": "2020-04-24T23:19:22.000Z",
-    "matchId": "11348961",
-    "ranking": [
-      {
-        "deaths": 0,
-        "kills": 4,
-        "position": 1,
-        "username": "Roman",
-      },
-      {
-        "deaths": 2,
-        "kills": 2,
-        "position": 2,
-        "username": "Bryan",
-      },
-      {
-        "deaths": 4,
-        "kills": 2,
-        "position": 3,
-        "username": "Marcus",
-      },
-      {
-        "deaths": 2,
-        "kills": 0,
-        "position": 4,
-        "username": "Jhon",
-      },
-    ],
-    "startedAt": "2020-04-24T19:14:22.000Z",
-  },
-  {
-    "endedAt": "2021-04-23T19:49:22.000Z",
-    "matchId": "11348966",
-    "ranking": [
-      {
-        "deaths": 0,
-        "kills": 2,
-        "position": 1,
-        "username": "Roman",
-      },
-      {
-        "deaths": 2,
-        "kills": 0,
-        "position": 2,
-        "username": "Marcus",
-      },
-    ],
-    "startedAt": "2021-04-23T19:14:22.000Z",
-  },
-]
-`;
-
 exports[`Analytics Controller (e2e) > GET /game/analytics/rankings > should return correctly rankings for all matches 1`] = `
 [
   {
@@ -94,6 +20,13 @@ exports[`Analytics Controller (e2e) > GET /game/analytics/rankings > should retu
       },
     ],
     "startedAt": "2019-04-23T18:34:22.000Z",
+    "winner": {
+      "bestWeapon": "M16",
+      "deaths": 0,
+      "kills": 2,
+      "position": 1,
+      "username": "Roman",
+    },
   },
   {
     "endedAt": "2020-04-24T23:19:22.000Z",
@@ -125,6 +58,13 @@ exports[`Analytics Controller (e2e) > GET /game/analytics/rankings > should retu
       },
     ],
     "startedAt": "2020-04-24T19:14:22.000Z",
+    "winner": {
+      "bestWeapon": "M16",
+      "deaths": 0,
+      "kills": 4,
+      "position": 1,
+      "username": "Roman",
+    },
   },
   {
     "endedAt": "2021-04-23T19:49:22.000Z",
@@ -144,6 +84,13 @@ exports[`Analytics Controller (e2e) > GET /game/analytics/rankings > should retu
       },
     ],
     "startedAt": "2021-04-23T19:14:22.000Z",
+    "winner": {
+      "bestWeapon": "M16",
+      "deaths": 0,
+      "kills": 2,
+      "position": 1,
+      "username": "Roman",
+    },
   },
 ]
 `;

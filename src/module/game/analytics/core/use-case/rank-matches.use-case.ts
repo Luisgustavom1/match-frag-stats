@@ -1,16 +1,28 @@
+import { MatchModel } from "@match-engine/engine/core/model/match.model";
 import { Injectable } from "@nestjs/common";
 import { MatchRepository } from "@src/module/game/shared/persistence/repository/match.repository";
 import { AppLogger } from "@src/module/shared/logger/service/app-logger.service";
 import {
-	type MatchRanking,
+	PlayerStats,
 	RankingCalculatorService,
 } from "../service/ranking-calculator.service";
+import {
+	WinnerInfos,
+	WinnerInfosService,
+} from "../service/winner-infos.service";
+
+export interface MatchRanking {
+	match: MatchModel;
+	ranking: PlayerStats[];
+	winnerInfos?: WinnerInfos;
+}
 
 @Injectable()
 export class RankMatchesUseCase {
 	constructor(
 		private readonly matchRepository: MatchRepository,
 		private readonly rankingCalculatorService: RankingCalculatorService,
+		private readonly winnerInfosService: WinnerInfosService,
 		private readonly logger: AppLogger,
 	) {}
 
@@ -23,9 +35,17 @@ export class RankMatchesUseCase {
 			externalIds,
 		});
 
-		return matches.map((match) => ({
-			match,
-			ranking: this.rankingCalculatorService.calculate(match.frags),
-		}));
+		const results: MatchRanking[] = matches.map((match) => {
+			const ranking = this.rankingCalculatorService.calculate(match.frags);
+			const winnerInfos = this.winnerInfosService.get(match, ranking);
+
+			return {
+				match,
+				ranking,
+				winnerInfos,
+			};
+		});
+
+		return results;
 	}
 }

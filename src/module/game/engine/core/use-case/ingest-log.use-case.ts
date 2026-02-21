@@ -1,16 +1,11 @@
+import { MatchRanking } from "@match-engine/analytics/core/use-case/rank-matches.use-case";
 import { Injectable } from "@nestjs/common";
-import {
-	type MatchRanking,
-	RankingCalculatorService,
-} from "@src/module/game/analytics/core/service/ranking-calculator.service";
+import { RankingCalculatorService } from "@src/module/game/analytics/core/service/ranking-calculator.service";
 import { MatchAggregatePersistenceService } from "@src/module/game/shared/persistence/service/match-aggregate.persistence.service";
 import { AppLogger } from "@src/module/shared/logger/service/app-logger.service";
 import { LogParserService } from "../service/log-parser.service";
 
-export type {
-	MatchRanking,
-	PlayerStats,
-} from "@src/module/game/analytics/core/service/ranking-calculator.service";
+export type { PlayerStats } from "@src/module/game/analytics/core/service/ranking-calculator.service";
 
 @Injectable()
 export class IngestLogUseCase {

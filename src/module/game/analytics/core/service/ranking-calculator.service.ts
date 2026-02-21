@@ -1,16 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import type { FragsModel } from "@src/module/game/engine/core/model/frags.model";
-import type { MatchModel } from "@src/module/game/engine/core/model/match.model";
 
 export interface PlayerStats {
 	username: string;
 	kills: number;
 	deaths: number;
-}
-
-export interface MatchRanking {
-	match: MatchModel;
-	ranking: PlayerStats[];
+	position: number;
 }
 
 @Injectable()
@@ -26,7 +21,7 @@ export class RankingCalculatorService {
 				deaths: 0,
 			};
 			killerStats.kills++;
-			statsMapByPlayer.set(frag.killerUsername, killerStats);
+			statsMapByPlayer.set(frag.killerUsername, killerStats as PlayerStats);
 
 			// deaths
 			const victimStats = statsMapByPlayer.get(frag.victimUsername) || {
@@ -35,7 +30,7 @@ export class RankingCalculatorService {
 				deaths: 0,
 			};
 			victimStats.deaths++;
-			statsMapByPlayer.set(frag.victimUsername, victimStats);
+			statsMapByPlayer.set(frag.victimUsername, victimStats as PlayerStats);
 		}
 
 		const sorted = [...statsMapByPlayer.values()];
@@ -43,6 +38,10 @@ export class RankingCalculatorService {
 			if (b.kills !== a.kills) return b.kills - a.kills;
 			// if kills are the same, sort by deaths ascending
 			return a.deaths - b.deaths;
+		});
+
+		sorted.forEach((stats, index) => {
+			stats.position = index + 1;
 		});
 
 		return sorted;

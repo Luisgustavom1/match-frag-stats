@@ -93,6 +93,8 @@ describe("Analytics Controller (e2e)", () => {
 23/04/2019 15:34:22 - New match 999 has started
 23/04/2019 15:35:00 - Roman killed Nick using M16
 23/04/2019 15:35:10 - Roman killed Marcus using AK47
+23/04/2019 15:35:10 - Roman killed Marcus using AK47
+23/04/2019 15:35:20 - Nick killed Marcus using M16
 23/04/2019 15:35:20 - Nick killed Marcus using M16
 23/04/2019 15:35:20 - Nick killed Marcus using M16
 23/04/2019 15:39:22 - Match 999 has ended
@@ -110,24 +112,31 @@ describe("Analytics Controller (e2e)", () => {
 			const body: MatchRankingsAnalyticsResponseDto = response.body;
 			expect(body.totalMatches).toBe(1);
 
-			const ranking = body.matches[0].ranking;
-			expect(ranking[0]).toMatchObject({
+			const { ranking, winner } = body.matches[0];
+			expect(ranking[0]).toEqual({
 				position: 1,
 				username: "Roman",
-				kills: 2,
+				kills: 3,
 				deaths: 0,
 			});
-			expect(ranking[1]).toMatchObject({
+			expect(ranking[1]).toEqual({
 				position: 2, // nick has same kills as Roman but more deaths, so should be in position 2
 				username: "Nick",
-				kills: 2,
+				kills: 3,
 				deaths: 1,
 			});
-			expect(ranking[2]).toMatchObject({
+			expect(ranking[2]).toEqual({
 				position: 3,
 				username: "Marcus",
 				kills: 0,
-				deaths: 3,
+				deaths: 5,
+			});
+			expect(winner).toEqual({
+				position: 1,
+				username: "Roman",
+				kills: 3,
+				deaths: 0,
+				bestWeapon: "AK47",
 			});
 		});
 
