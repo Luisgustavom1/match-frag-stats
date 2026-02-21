@@ -3,10 +3,10 @@ import { MatchModel } from "@src/module/game/engine/core/model/match.model";
 import { AppLogger } from "@src/module/shared/logger/service/app-logger.service";
 import { DatabaseConnection } from "@src/module/shared/persistence/drizzle/connection";
 import { DATABASE_CONNECTION } from "@src/module/shared/persistence/drizzle/drizzle-persistence.module";
-import { FragEntityParams } from "../mapper/frags.mapper";
-import { FragsRepository } from "../repository/frags.repository";
-import { MatchRepository } from "../repository/match.repository";
-import { PlayerRepository } from "../repository/player.repository";
+import { FragEntityParams } from "../../../shared/persistence/mapper/frags.mapper";
+import { FragsRepository } from "../../../shared/persistence/repository/frags.repository";
+import { MatchRepository } from "../../../shared/persistence/repository/match.repository";
+import { PlayerRepository } from "../../../shared/persistence/repository/player.repository";
 
 @Injectable()
 export class MatchAggregatePersistenceService {

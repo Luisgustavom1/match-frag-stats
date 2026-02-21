@@ -1,6 +1,6 @@
+import { GameModule } from "@match-engine/game.module";
 import { INestApplication } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import { EngineModule } from "@src/module/game/engine/engine.module";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -9,7 +9,7 @@ describe("Health (e2e)", () => {
 
 	beforeAll(async () => {
 		const module: TestingModule = await Test.createTestingModule({
-			imports: [EngineModule],
+			imports: [GameModule],
 		}).compile();
 
 		app = module.createNestApplication();

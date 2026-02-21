@@ -1,7 +1,7 @@
 import { MatchRanking } from "@match-engine/analytics/core/use-case/rank-matches.use-case";
+import { MatchAggregatePersistenceService } from "@match-engine/engine/persistence/service/match-aggregate.persistence.service";
 import { Injectable } from "@nestjs/common";
 import { RankingCalculatorService } from "@src/module/game/analytics/core/service/ranking-calculator.service";
-import { MatchAggregatePersistenceService } from "@src/module/game/shared/persistence/service/match-aggregate.persistence.service";
 import { AppLogger } from "@src/module/shared/logger/service/app-logger.service";
 import { LogParserService } from "../service/log-parser.service";
 

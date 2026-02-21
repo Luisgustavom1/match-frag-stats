@@ -6,7 +6,6 @@ import { LogUrlMethodInterceptor } from "@src/module/shared/logger/interceptor/l
 import { LoggerModule } from "@src/module/shared/logger/logger.module";
 import { LogParserService } from "./core/service/log-parser.service";
 import { IngestLogUseCase } from "./core/use-case/ingest-log.use-case";
-import { HealthController } from "./http/health.controller";
 import { IngestLogController } from "./http/ingest-log.controller";
 
 @Module({
@@ -24,6 +23,6 @@ import { IngestLogController } from "./http/ingest-log.controller";
 			useClass: LogUrlMethodInterceptor,
 		},
 	],
-	controllers: [HealthController, IngestLogController],
+	controllers: [IngestLogController],
 })
 export class EngineModule {}
