@@ -24,7 +24,9 @@
 		"noFallthroughCasesInSwitch": false,
 		"checkJs": false,
 		"paths": {
-			"@match-engine/*": ["src/module/match-engine/*"],
+			"@match-engine/*": ["src/module/game/*"],
+			"@engine/*": ["src/module/game/engine/*"],
+			"@analytics/*": ["src/module/game/analytics/*"],
 			"@shared/*": ["src/module/shared/*"],
 			"@src/*": ["src/*"]
 		}

@@ -1,6 +1,6 @@
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-import { LoggerFactory } from "@shared/logger/util/logger.factory";
+import { LoggerFactory } from "@src/module/shared/logger/util/logger.factory";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {

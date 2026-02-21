@@ -1,4 +1,4 @@
-import { AppLogger } from "@shared/logger/service/app-logger.service";
+import { AppLogger } from "@src/module/shared/logger/service/app-logger.service";
 import { vi } from "vitest";
 
 export const loggerMock = {

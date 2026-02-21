@@ -1,7 +1,7 @@
-import { MatchEngineModule } from "@match-engine/match-engine.module";
 import { Module } from "@nestjs/common";
+import { GameModule } from "@src/module/game/game.module";
 
 @Module({
-	imports: [MatchEngineModule],
+	imports: [GameModule],
 })
 export class AppModule {}

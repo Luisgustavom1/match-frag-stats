@@ -1,7 +1,7 @@
 import { Inject, Module, type OnApplicationShutdown } from "@nestjs/common";
-import { ConfigModule } from "@shared/config/config.module";
-import { ConfigService } from "@shared/config/service/config.service";
-import { AppLogger } from "@shared/logger/service/app-logger.service";
+import { ConfigModule } from "@src/module/shared/config/config.module";
+import { ConfigService } from "@src/module/shared/config/service/config.service";
+import { AppLogger } from "@src/module/shared/logger/service/app-logger.service";
 import {
 	createDatabaseConnection,
 	type DatabaseConnectionFactory,

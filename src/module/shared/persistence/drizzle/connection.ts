@@ -1,4 +1,4 @@
-import type { ConfigService } from "@shared/config/service/config.service";
+import type { ConfigService } from "@src/module/shared/config/service/config.service";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
