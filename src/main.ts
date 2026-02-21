@@ -1,3 +1,4 @@
+import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { LoggerFactory } from "@shared/logger/util/logger.factory";
 import { AppModule } from "./app.module";
@@ -9,6 +10,7 @@ async function bootstrap() {
 	});
 	app.useLogger(logger);
 	app.enableShutdownHooks();
+	app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 	await app.listen(3000);
 }
 bootstrap();

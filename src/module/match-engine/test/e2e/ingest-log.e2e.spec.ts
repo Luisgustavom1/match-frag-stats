@@ -1,11 +1,11 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { IngestLogResponseDto } from "@match-engine/http/dto/ingest-log-response.dto";
+import { MatchRankingsAnalyticsResponseDto } from "@match-engine/http/dto/out/analytics-response.dto";
 import { MatchEngineModule } from "@match-engine/match-engine.module";
 import { frags } from "@match-engine/persistence/entity/frags.entity";
 import { match } from "@match-engine/persistence/entity/match.entity";
 import { player } from "@match-engine/persistence/entity/player.entity";
-import { INestApplication } from "@nestjs/common";
+import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { DATABASE_CONNECTION } from "@shared/persistence/drizzle/drizzle-persistence.module";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
@@ -35,6 +35,9 @@ describe("Ingest Log Controller (e2e)", () => {
 		}).compile();
 
 		app = module.createNestApplication();
+		app.useGlobalPipes(
+			new ValidationPipe({ transform: true, whitelist: true }),
+		);
 		await app.init();
 
 		dbConn = module.get<NodePgDatabase>(DATABASE_CONNECTION);
@@ -120,7 +123,7 @@ describe("Ingest Log Controller (e2e)", () => {
 				})
 				.expect(201);
 
-			const responseBody: IngestLogResponseDto = response.body;
+			const responseBody: MatchRankingsAnalyticsResponseDto = response.body;
 			expect(responseBody.totalMatches).toBe(3);
 			// empty frags
 			expect(responseBody.matches.map(({ ranking }) => ranking)).toEqual([

@@ -14,8 +14,9 @@ export class RankMatchesUseCase {
 		private readonly logger: AppLogger,
 	) {}
 
-	async execute(): Promise<MatchRanking[]> {
-		const matches = await this.matchRepository.findAllWithFragsAndPlayers();
+	async execute(externalIds?: string[]): Promise<MatchRanking[]> {
+		const matches =
+			await this.matchRepository.findAllWithFragsAndPlayers(externalIds);
 
 		this.logger.log("fetching rankings for all matches", {
 			totalMatches: matches.length,

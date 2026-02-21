@@ -3,7 +3,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { DatabaseConnection } from "@shared/persistence/drizzle/connection";
 import { DATABASE_CONNECTION } from "@shared/persistence/drizzle/drizzle-persistence.module";
 import { Transaction } from "@shared/persistence/drizzle/type";
-import { asc, eq, sql } from "drizzle-orm";
+import { asc, eq, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { frags } from "../entity/frags.entity";
 import { match } from "../entity/match.entity";
@@ -41,7 +41,9 @@ export class MatchRepository {
 		);
 	}
 
-	async findAllWithFragsAndPlayers(): Promise<MatchModel[]> {
+	async findAllWithFragsAndPlayers(
+		externalIds?: string[],
+	): Promise<MatchModel[]> {
 		const killerAlias = alias(player, "killer");
 		const victimAlias = alias(player, "victim");
 
@@ -53,6 +55,11 @@ export class MatchRepository {
 				victimUsername: victimAlias.username,
 			})
 			.from(match)
+			.where(
+				externalIds?.length
+					? inArray(match.externalId, externalIds)
+					: undefined,
+			)
 			.leftJoin(frags, eq(frags.matchId, match.id))
 			.leftJoin(killerAlias, eq(frags.killerId, killerAlias.id))
 			.leftJoin(victimAlias, eq(frags.victimId, victimAlias.id))

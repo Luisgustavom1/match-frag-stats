@@ -1,11 +1,11 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { MatchRankingsAnalyticsResponseDto } from "@match-engine/http/dto/analytics-response.dto";
+import { MatchRankingsAnalyticsResponseDto } from "@match-engine/http/dto/out/analytics-response.dto";
 import { MatchEngineModule } from "@match-engine/match-engine.module";
 import { frags } from "@match-engine/persistence/entity/frags.entity";
 import { match } from "@match-engine/persistence/entity/match.entity";
 import { player } from "@match-engine/persistence/entity/player.entity";
-import { INestApplication } from "@nestjs/common";
+import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { DATABASE_CONNECTION } from "@shared/persistence/drizzle/drizzle-persistence.module";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
@@ -38,6 +38,9 @@ describe("Analytics Controller (e2e)", () => {
 		}).compile();
 
 		app = module.createNestApplication();
+		app.useGlobalPipes(
+			new ValidationPipe({ transform: true, whitelist: true }),
+		);
 		await app.init();
 
 		dbConn = module.get<NodePgDatabase>(DATABASE_CONNECTION);
@@ -53,7 +56,7 @@ describe("Analytics Controller (e2e)", () => {
 		await app.close();
 	});
 
-	describe("GET /match-engine/analytics/rankings", () => {
+	describe("GET /match-engine/analytics/match/rankings", () => {
 		it("should return empty result when no matches exist", async () => {
 			const response = await getRankingsReq(app).expect(200);
 
@@ -173,6 +176,93 @@ describe("Analytics Controller (e2e)", () => {
 			expect(ranking[1].kills).toBe(1);
 			expect(ranking[2].username).toBe("Gamma");
 			expect(ranking[2].kills).toBe(0);
+		});
+
+		describe("filtering by matchId", () => {
+			it("should filter correctly matches by a matchId", async () => {
+				const log = Buffer.from(`
+23/04/2019 15:34:22 - New match 100 has started
+23/04/2019 15:35:00 - Roman killed Nick using M16
+23/04/2019 15:39:22 - Match 100 has ended
+
+23/04/2019 16:00:00 - New match 200 has started
+23/04/2019 16:01:00 - Marcus killed Bryan using AK47
+23/04/2019 16:10:00 - Match 200 has ended
+			`);
+
+				await ingestLogReq(app)
+					.attach("log", log, {
+						filename: "test.log",
+						contentType: "text/plain",
+					})
+					.expect(201);
+
+				const response = await getRankingsReq(app)
+					.query({ matchIds: "100" })
+					.expect(200);
+
+				const body: MatchRankingsAnalyticsResponseDto = response.body;
+				expect(body.totalMatches).toBe(1);
+				expect(body.matches[0].matchId).toBe("100");
+			});
+
+			it("should filter matches by multiple matchIds", async () => {
+				const log = Buffer.from(`
+23/04/2019 15:34:22 - New match 10 has started
+23/04/2019 15:39:22 - Match 10 has ended
+
+23/04/2019 16:00:00 - New match 20 has started
+23/04/2019 16:10:00 - Match 20 has ended
+
+23/04/2019 17:00:00 - New match 30 has started
+23/04/2019 17:10:00 - Match 30 has ended
+			`);
+
+				await ingestLogReq(app)
+					.attach("log", log, {
+						filename: "test.log",
+						contentType: "text/plain",
+					})
+					.expect(201);
+
+				const response = await getRankingsReq(app)
+					.query({ matchIds: ["10", "30"] })
+					.expect(200);
+
+				const body: MatchRankingsAnalyticsResponseDto = response.body;
+				expect(body.totalMatches).toBe(2);
+				expect(body.matches.map((m) => m.matchId).sort()).toEqual(["10", "30"]);
+			});
+
+			it("should return empty when matchIds filter does not match any match", async () => {
+				const log = Buffer.from(`
+23/04/2019 15:34:22 - New match 50 has started
+23/04/2019 15:39:22 - Match 50 has ended
+			`);
+
+				await ingestLogReq(app)
+					.attach("log", log, {
+						filename: "test.log",
+						contentType: "text/plain",
+					})
+					.expect(201);
+
+				const response = await getRankingsReq(app)
+					.query({ matchIds: "9999" })
+					.expect(200);
+
+				const body: MatchRankingsAnalyticsResponseDto = response.body;
+				expect(body).toEqual({ totalMatches: 0, matches: [] });
+			});
+
+			it("should return 400 when matchIds contains empty string values", async () => {
+				const response = await getRankingsReq(app)
+					.query({ matchIds: "" })
+					.expect(400);
+
+				expect(response.body).toHaveProperty("statusCode", 400);
+				expect(response.body).toHaveProperty("message");
+			});
 		});
 	});
 });
