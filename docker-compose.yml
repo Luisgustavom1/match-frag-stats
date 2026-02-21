@@ -4,7 +4,6 @@ services:
   db:
     image: postgres:18.2-alpine
     container_name: frag_stats_db
-    profiles: ['all', 'deps']
     environment:
       POSTGRES_USER: frag_stats
       POSTGRES_PASSWORD: frag_stats
@@ -13,6 +12,29 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
       - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U frag_stats']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: frag_stats_app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: db
+    volumes:
+      - ./src:/app/src
+      - /app/node_modules
 
 volumes:
   db-data:

@@ -51,29 +51,69 @@ src/module/game/
 
 ### Pré-requisitos
 
-- Node.js 20+
-- pnpm
-- Docker
+- Docker e Docker Compose
+- pnpm (apenas para o fluxo local)
+- Node.js 20+ (apenas para o fluxo local)
 
-### 1. Subir o banco de dados
+---
+
+### Opção A — Tudo em Docker
+
+Sobe o banco de dados **e** a aplicação em containers. A pasta `src/` é montada
+como volume, então o hot-reload funciona normalmente.
+
+#### 1. Copiar variáveis de ambiente
 
 ```bash
-pnpm docker:start:deps
+cp .env.example .env
 ```
 
-### 2. Instalar dependências
+> O `DATABASE_HOST` é sobrescrito automaticamente pelo Docker Compose para `db`,
+> portanto não é necessário alterar a variável no arquivo `.env`.
+
+#### 2. Build da imagem
+
+```bash
+pnpm docker:build
+```
+
+#### 3. Subir todos os serviços
+
+```bash
+pnpm docker:start
+```
+
+#### 4. Rodar as migrations
+
+```bash
+docker exec -it frag_stats_app pnpm game:db:migrate
+```
+
+A aplicação estará disponível em `http://localhost:3000`.
+
+---
+
+### Opção B — Banco em Docker, aplicação local
+
+#### 1. Subir apenas o banco de dados
+
+```bash
+pnpm docker:start:db
+```
+
+#### 2. Instalar dependências
 
 ```bash
 pnpm install
 ```
 
-### 3. Rodar as migrations
+#### 3. Rodar as migrations
 
 ```bash
 pnpm game:db:migrate
 ```
 
-### 4. Iniciar a aplicação
+#### 4. Iniciar a aplicação
 
 ```bash
 # desenvolvimento (watch mode)
