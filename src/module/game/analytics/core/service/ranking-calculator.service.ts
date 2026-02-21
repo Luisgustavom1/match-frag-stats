@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import type { AwardType } from "@src/module/game/engine/core/model/award.model";
 import type { FragsModel } from "@src/module/game/engine/core/model/frags.model";
 
 export interface PlayerStats {
@@ -6,6 +7,7 @@ export interface PlayerStats {
 	kills: number;
 	deaths: number;
 	position: number;
+	awards: AwardType[];
 }
 
 @Injectable()
@@ -19,6 +21,8 @@ export class RankingCalculatorService {
 				username: frag.killerUsername,
 				kills: 0,
 				deaths: 0,
+				awards: [],
+				position: 0,
 			};
 			killerStats.kills++;
 			statsMapByPlayer.set(frag.killerUsername, killerStats as PlayerStats);
@@ -28,6 +32,8 @@ export class RankingCalculatorService {
 				username: frag.victimUsername,
 				kills: 0,
 				deaths: 0,
+				awards: [],
+				position: 0,
 			};
 			victimStats.deaths++;
 			statsMapByPlayer.set(frag.victimUsername, victimStats as PlayerStats);
@@ -42,6 +48,7 @@ export class RankingCalculatorService {
 
 		sorted.forEach((stats, index) => {
 			stats.position = index + 1;
+			if (!stats.awards) stats.awards = [];
 		});
 
 		return sorted;

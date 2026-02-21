@@ -2,6 +2,8 @@ import { MatchRanking } from "@match-engine/analytics/core/use-case/rank-matches
 import { MatchAggregatePersistenceService } from "@match-engine/engine/persistence/service/match-aggregate.persistence.service";
 import { Injectable } from "@nestjs/common";
 import { RankingCalculatorService } from "@src/module/game/analytics/core/service/ranking-calculator.service";
+import { AwardModel } from "@src/module/game/engine/core/model/award.model";
+import { AwardCalculatorService } from "@src/module/game/engine/core/service/award-calculator.service";
 import { AppLogger } from "@src/module/shared/logger/service/app-logger.service";
 import { LogParserService } from "../service/log-parser.service";
 
@@ -13,6 +15,7 @@ export class IngestLogUseCase {
 		private readonly logParserService: LogParserService,
 		private readonly matchAggregatePersistenceService: MatchAggregatePersistenceService,
 		private readonly rankingCalculatorService: RankingCalculatorService,
+		private readonly awardCalculatorService: AwardCalculatorService,
 		private readonly logger: AppLogger,
 	) {}
 
@@ -24,12 +27,19 @@ export class IngestLogUseCase {
 			return [];
 		}
 
-		await this.matchAggregatePersistenceService.persistMatches(matches);
-
 		const results: MatchRanking[] = matches.map((match) => ({
 			match,
 			ranking: this.rankingCalculatorService.calculate(match.frags),
 		}));
+
+		const allAwards: AwardModel[] = results.flatMap(({ match, ranking }) =>
+			this.awardCalculatorService.calculateForMatch(match, ranking),
+		);
+
+		await this.matchAggregatePersistenceService.persistMatches(
+			matches,
+			allAwards,
+		);
 
 		this.logger.log("ingestion completed", { totalMatches: results.length });
 		return results;

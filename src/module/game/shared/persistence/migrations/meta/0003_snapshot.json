@@ -1,0 +1,253 @@
+{
+	"id": "cbd662d2-d476-4ace-bf59-0a74ad60bee5",
+	"prevId": "f13504a9-68d5-44ef-b4a9-5869b3858a51",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"match_engine.award": {
+			"name": "award",
+			"schema": "match_engine",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"player_id": {
+					"name": "player_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"match_id": {
+					"name": "match_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"type": {
+					"name": "type",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"award_player_id_player_id_fk": {
+					"name": "award_player_id_player_id_fk",
+					"tableFrom": "award",
+					"tableTo": "player",
+					"schemaTo": "match_engine",
+					"columnsFrom": ["player_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"award_match_id_match_id_fk": {
+					"name": "award_match_id_match_id_fk",
+					"tableFrom": "award",
+					"tableTo": "match",
+					"schemaTo": "match_engine",
+					"columnsFrom": ["match_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"award_player_id_match_id_type_unique": {
+					"name": "award_player_id_match_id_type_unique",
+					"nullsNotDistinct": false,
+					"columns": ["player_id", "match_id", "type"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"match_engine.frags": {
+			"name": "frags",
+			"schema": "match_engine",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"match_id": {
+					"name": "match_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"killer_id": {
+					"name": "killer_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"victim_id": {
+					"name": "victim_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"weapon": {
+					"name": "weapon",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"occurred_at": {
+					"name": "occurred_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"frags_match_id_match_id_fk": {
+					"name": "frags_match_id_match_id_fk",
+					"tableFrom": "frags",
+					"tableTo": "match",
+					"schemaTo": "match_engine",
+					"columnsFrom": ["match_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"frags_killer_id_player_id_fk": {
+					"name": "frags_killer_id_player_id_fk",
+					"tableFrom": "frags",
+					"tableTo": "player",
+					"schemaTo": "match_engine",
+					"columnsFrom": ["killer_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"frags_victim_id_player_id_fk": {
+					"name": "frags_victim_id_player_id_fk",
+					"tableFrom": "frags",
+					"tableTo": "player",
+					"schemaTo": "match_engine",
+					"columnsFrom": ["victim_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"match_engine.match": {
+			"name": "match",
+			"schema": "match_engine",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"external_id": {
+					"name": "external_id",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"started_at": {
+					"name": "started_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"ended_at": {
+					"name": "ended_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"match_external_id_unique": {
+					"name": "match_external_id_unique",
+					"nullsNotDistinct": false,
+					"columns": ["external_id"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"match_engine.player": {
+			"name": "player",
+			"schema": "match_engine",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"username": {
+					"name": "username",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"player_username_unique": {
+					"name": "player_username_unique",
+					"nullsNotDistinct": false,
+					"columns": ["username"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {},
+	"schemas": {
+		"match_engine": "match_engine"
+	},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
+}

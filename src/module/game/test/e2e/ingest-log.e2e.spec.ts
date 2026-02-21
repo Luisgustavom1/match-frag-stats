@@ -4,6 +4,7 @@ import { GameModule } from "@match-engine/game.module";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { MatchRankingsAnalyticsResponseDto } from "@src/module/game/analytics/http/dto/out/analytics-response.dto";
+import { award } from "@src/module/game/shared/persistence/entity/award.entity";
 import { frags } from "@src/module/game/shared/persistence/entity/frags.entity";
 import { match } from "@src/module/game/shared/persistence/entity/match.entity";
 import { player } from "@src/module/game/shared/persistence/entity/player.entity";
@@ -46,6 +47,7 @@ describe("Ingest Log Controller (e2e)", () => {
 	afterEach(async () => {
 		// Clean up database after each test
 		await dbConn.delete(frags);
+		await dbConn.delete(award);
 		await dbConn.delete(match);
 		await dbConn.delete(player);
 	});

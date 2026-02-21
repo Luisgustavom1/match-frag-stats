@@ -1,9 +1,11 @@
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import { AwardModel } from "@src/module/game/engine/core/model/award.model";
 import { MatchModel } from "@src/module/game/engine/core/model/match.model";
 import { AppLogger } from "@src/module/shared/logger/service/app-logger.service";
 import { DatabaseConnection } from "@src/module/shared/persistence/drizzle/connection";
 import { DATABASE_CONNECTION } from "@src/module/shared/persistence/drizzle/drizzle-persistence.module";
 import { FragEntityParams } from "../../../shared/persistence/mapper/frags.mapper";
+import { AwardRepository } from "../../../shared/persistence/repository/award.repository";
 import { FragsRepository } from "../../../shared/persistence/repository/frags.repository";
 import { MatchRepository } from "../../../shared/persistence/repository/match.repository";
 import { PlayerRepository } from "../../../shared/persistence/repository/player.repository";
@@ -16,10 +18,14 @@ export class MatchAggregatePersistenceService {
 		private readonly matchRepository: MatchRepository,
 		private readonly playerRepository: PlayerRepository,
 		private readonly fragsRepository: FragsRepository,
+		private readonly awardRepository: AwardRepository,
 		private readonly logger: AppLogger,
 	) {}
 
-	async persistMatches(matches: MatchModel[]): Promise<MatchModel[]> {
+	async persistMatches(
+		matches: MatchModel[],
+		awards: AwardModel[] = [],
+	): Promise<MatchModel[]> {
 		if (!matches.length) return [];
 
 		const allUsernames = this.getUniqueUsernamePlayers(matches);
@@ -69,6 +75,20 @@ export class MatchAggregatePersistenceService {
 			}
 
 			await this.fragsRepository.bulkCreate(fragsToInsert, tx);
+
+			const playerIdsByUsername = new Map(
+				savedPlayers.map((p) => [p.username, p.id as number]),
+			);
+			const matchIdsByExternalId = new Map(
+				savedMatches.map((m) => [m.externalId, m.id]),
+			);
+
+			await this.awardRepository.bulkCreate(
+				awards,
+				playerIdsByUsername,
+				matchIdsByExternalId,
+				tx,
+			);
 
 			this.logger.log("match aggregates saved successfully", {
 				matchesCount: savedMatches.length,

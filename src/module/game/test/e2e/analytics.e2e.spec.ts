@@ -4,6 +4,7 @@ import { GameModule } from "@match-engine/game.module";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { MatchRankingsAnalyticsResponseDto } from "@src/module/game/analytics/http/dto/out/analytics-response.dto";
+import { award } from "@src/module/game/shared/persistence/entity/award.entity";
 import { frags } from "@src/module/game/shared/persistence/entity/frags.entity";
 import { match } from "@src/module/game/shared/persistence/entity/match.entity";
 import { player } from "@src/module/game/shared/persistence/entity/player.entity";
@@ -48,6 +49,7 @@ describe("Analytics Controller (e2e)", () => {
 
 	afterEach(async () => {
 		await dbConn.delete(frags);
+		await dbConn.delete(award);
 		await dbConn.delete(match);
 		await dbConn.delete(player);
 	});
@@ -118,18 +120,21 @@ describe("Analytics Controller (e2e)", () => {
 				username: "Roman",
 				kills: 3,
 				deaths: 0,
+				awards: ["FLAWLESS_VICTORY"],
 			});
 			expect(ranking[1]).toEqual({
 				position: 2, // nick has same kills as Roman but more deaths, so should be in position 2
 				username: "Nick",
 				kills: 3,
 				deaths: 1,
+				awards: [],
 			});
 			expect(ranking[2]).toEqual({
 				position: 3,
 				username: "Marcus",
 				kills: 0,
 				deaths: 5,
+				awards: [],
 			});
 			expect(winner).toEqual({
 				position: 1,
@@ -137,6 +142,7 @@ describe("Analytics Controller (e2e)", () => {
 				kills: 3,
 				deaths: 0,
 				bestWeapon: "AK47",
+				awards: ["FLAWLESS_VICTORY"],
 			});
 		});
 

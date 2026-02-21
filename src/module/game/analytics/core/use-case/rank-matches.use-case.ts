@@ -1,5 +1,6 @@
 import { MatchModel } from "@match-engine/engine/core/model/match.model";
 import { Injectable } from "@nestjs/common";
+import { AwardRepository } from "@src/module/game/shared/persistence/repository/award.repository";
 import { MatchRepository } from "@src/module/game/shared/persistence/repository/match.repository";
 import { AppLogger } from "@src/module/shared/logger/service/app-logger.service";
 import {
@@ -21,6 +22,7 @@ export interface MatchRanking {
 export class RankMatchesUseCase {
 	constructor(
 		private readonly matchRepository: MatchRepository,
+		private readonly awardRepository: AwardRepository,
 		private readonly rankingCalculatorService: RankingCalculatorService,
 		private readonly winnerInfosService: WinnerInfosService,
 		private readonly logger: AppLogger,
@@ -35,15 +37,28 @@ export class RankMatchesUseCase {
 			externalIds,
 		});
 
+		const awards = await this.awardRepository.findByMatchExternalIds(
+			externalIds ?? matches.map((m) => m.externalId),
+		);
+
+		const awardsByMatchAndPlayer = new Map<string, PlayerStats["awards"]>();
+		for (const award of awards) {
+			const key = `${award.matchExternalId}::${award.playerUsername}`;
+			const existing = awardsByMatchAndPlayer.get(key) ?? [];
+			existing.push(award.type);
+			awardsByMatchAndPlayer.set(key, existing);
+		}
+
 		const results: MatchRanking[] = matches.map((match) => {
 			const ranking = this.rankingCalculatorService.calculate(match.frags);
-			const winnerInfos = this.winnerInfosService.get(match, ranking);
 
-			return {
-				match,
-				ranking,
-				winnerInfos,
-			};
+			for (const stats of ranking) {
+				const key = `${match.externalId}::${stats.username}`;
+				stats.awards = awardsByMatchAndPlayer.get(key) ?? [];
+			}
+
+			const winnerInfos = this.winnerInfosService.get(match, ranking);
+			return { match, ranking, winnerInfos };
 		});
 
 		return results;

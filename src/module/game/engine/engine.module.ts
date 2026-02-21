@@ -4,6 +4,7 @@ import { MatchEnginePersistenceModule } from "@src/module/game/shared/persistenc
 import { ConfigModule } from "@src/module/shared/config/config.module";
 import { LogUrlMethodInterceptor } from "@src/module/shared/logger/interceptor/log-url.interceptor";
 import { LoggerModule } from "@src/module/shared/logger/logger.module";
+import { AwardCalculatorService } from "./core/service/award-calculator.service";
 import { LogParserService } from "./core/service/log-parser.service";
 import { IngestLogUseCase } from "./core/use-case/ingest-log.use-case";
 import { IngestLogController } from "./http/ingest-log.controller";
@@ -17,6 +18,7 @@ import { IngestLogController } from "./http/ingest-log.controller";
 	],
 	providers: [
 		LogParserService,
+		AwardCalculatorService,
 		IngestLogUseCase,
 		{
 			provide: "APP_INTERCEPTOR",
