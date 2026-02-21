@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@shared/config/config.module";
+import { LogUrlMethodInterceptor } from "@shared/logger/interceptor/log-url.interceptor";
 import { LoggerModule } from "@shared/logger/logger.module";
 import { LogParserService } from "./core/service/log-parser.service";
 import { RankingCalculatorService } from "./core/service/ranking-calculator.service";
@@ -17,6 +18,10 @@ import { MatchEnginePersistenceModule } from "./persistence/match-engine.persist
 		RankingCalculatorService,
 		IngestLogUseCase,
 		RankMatchesUseCase,
+		{
+			provide: "APP_INTERCEPTOR",
+			useClass: LogUrlMethodInterceptor,
+		},
 	],
 	controllers: [HealthController, MatchLogController, AnalyticsController],
 })

@@ -20,6 +20,7 @@ export class RankMatchesUseCase {
 
 		this.logger.log("fetching rankings for all matches", {
 			totalMatches: matches.length,
+			externalIds,
 		});
 
 		return matches.map((match) => ({
