@@ -2,6 +2,7 @@ import { PlayerModel } from "@match-engine/core/model/player.model";
 import { Inject, Injectable } from "@nestjs/common";
 import { DatabaseConnection } from "@shared/persistence/drizzle/connection";
 import { DATABASE_CONNECTION } from "@shared/persistence/drizzle/drizzle-persistence.module";
+import { Transaction } from "@shared/persistence/drizzle/type";
 import { player } from "../entity/player.entity";
 import { PlayerMapper } from "../mapper/player.mapper";
 
@@ -12,14 +13,16 @@ export class PlayerRepository {
 		private readonly dbConn: DatabaseConnection,
 	) {}
 
-	async findOrCreateBatch(usernames: string[]): Promise<PlayerModel[]> {
+	async bulkCreate(
+		usernames: string[],
+		tx?: Transaction,
+	): Promise<PlayerModel[]> {
 		if (!usernames.length) return [];
 
-		const uniqueUsernames = [...new Set(usernames)];
-		const insertedPlayers = await this.dbConn
+		const insertedPlayers = await (tx || this.dbConn)
 			.insert(player)
 			.values(
-				uniqueUsernames.map((username) =>
+				usernames.map((username) =>
 					PlayerMapper.toEntity({
 						username,
 						createdAt: new Date(),

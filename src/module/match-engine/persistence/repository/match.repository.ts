@@ -2,6 +2,7 @@ import { MatchModel } from "@match-engine/core/model/match.model";
 import { Inject, Injectable } from "@nestjs/common";
 import { DatabaseConnection } from "@shared/persistence/drizzle/connection";
 import { DATABASE_CONNECTION } from "@shared/persistence/drizzle/drizzle-persistence.module";
+import { Transaction } from "@shared/persistence/drizzle/type";
 import { sql } from "drizzle-orm";
 import { match } from "../entity/match.entity";
 import { MatchMapper } from "../mapper/match.mapper";
@@ -13,10 +14,13 @@ export class MatchRepository {
 		private readonly dbConn: DatabaseConnection,
 	) {}
 
-	async upsertBatch(matches: MatchModel[]): Promise<MatchModel[]> {
+	async bulkCreate(
+		matches: MatchModel[],
+		tx?: Transaction,
+	): Promise<MatchModel[]> {
 		if (!matches.length) return [];
 
-		const upsertedMatches = await this.dbConn
+		const upsertedMatches = await (tx || this.dbConn)
 			.insert(match)
 			.values(matches.map((m) => MatchMapper.toEntity(m)))
 			.onConflictDoUpdate({

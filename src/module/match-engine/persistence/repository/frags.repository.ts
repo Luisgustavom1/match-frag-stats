@@ -1,7 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { DatabaseConnection } from "@shared/persistence/drizzle/connection";
 import { DATABASE_CONNECTION } from "@shared/persistence/drizzle/drizzle-persistence.module";
-import { FragsEntity, frags } from "../entity/frags.entity";
+import { Transaction } from "@shared/persistence/drizzle/type";
+import { frags } from "../entity/frags.entity";
+import { FragEntityParams, FragsMapper } from "../mapper/frags.mapper";
 
 @Injectable()
 export class FragsRepository {
@@ -10,9 +12,14 @@ export class FragsRepository {
 		private readonly dbConn: DatabaseConnection,
 	) {}
 
-	async bulkCreate(fragsData: FragsEntity[]): Promise<void> {
+	async bulkCreate(
+		fragsData: FragEntityParams[],
+		tx?: Transaction,
+	): Promise<void> {
 		if (!fragsData.length) return;
 
-		await this.dbConn.insert(frags).values(fragsData);
+		await (tx || this.dbConn)
+			.insert(frags)
+			.values(fragsData.map((data) => FragsMapper.toEntity(data)));
 	}
 }
