@@ -4,7 +4,7 @@ import { FragsEntity } from "../entity";
 export interface FragEntityParams {
 	frag: FragsModel;
 	matchId: number;
-	killerId: number | null;
+	killerId: number;
 	victimId: number;
 }
 

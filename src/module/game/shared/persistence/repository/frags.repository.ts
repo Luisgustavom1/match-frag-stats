@@ -20,6 +20,7 @@ export class FragsRepository {
 
 		await (tx || this.dbConn)
 			.insert(frags)
-			.values(fragsData.map((data) => FragsMapper.toEntity(data)));
+			.values(fragsData.map(FragsMapper.toEntity))
+			.onConflictDoNothing();
 	}
 }

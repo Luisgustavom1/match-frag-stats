@@ -92,11 +92,11 @@ describe("Analytics Controller (e2e)", () => {
 			const log = Buffer.from(`
 23/04/2019 15:34:22 - New match 999 has started
 23/04/2019 15:35:00 - Roman killed Nick using M16
-23/04/2019 15:35:10 - Roman killed Marcus using AK47
-23/04/2019 15:35:10 - Roman killed Marcus using AK47
-23/04/2019 15:35:20 - Nick killed Marcus using M16
-23/04/2019 15:35:20 - Nick killed Marcus using M16
-23/04/2019 15:35:20 - Nick killed Marcus using M16
+23/04/2019 15:35:11 - Roman killed Marcus using AK47
+23/04/2019 15:35:12 - Roman killed Marcus using AK47
+23/04/2019 15:35:21 - Nick killed Marcus using M16
+23/04/2019 15:35:22 - Nick killed Marcus using M16
+23/04/2019 15:35:23 - Nick killed Marcus using M16
 23/04/2019 15:39:22 - Match 999 has ended
 			`);
 

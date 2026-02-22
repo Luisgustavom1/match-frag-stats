@@ -205,7 +205,7 @@ describe("Ingest Log Controller (e2e)", () => {
 			expect(players).toHaveLength(2); // still only 2 players
 
 			allFrags = await dbConn.select().from(frags);
-			expect(allFrags.length).toBe(firstFragsCount * 2); // new two frags inserted for the same match
+			expect(allFrags.length).toBe(firstFragsCount);
 		});
 
 		it("should throw error if try upload a invalid file type", async () => {

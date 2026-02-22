@@ -8,12 +8,12 @@ exports[`Analytics Controller (e2e) > GET /game/analytics/rankings > should retu
     "ranking": [
       {
         "deaths": 0,
-        "kills": 2,
+        "kills": 1,
         "position": 1,
         "username": "Roman",
       },
       {
-        "deaths": 2,
+        "deaths": 1,
         "kills": 0,
         "position": 2,
         "username": "Nick",
@@ -23,7 +23,7 @@ exports[`Analytics Controller (e2e) > GET /game/analytics/rankings > should retu
     "winner": {
       "bestWeapon": "M16",
       "deaths": 0,
-      "kills": 2,
+      "kills": 1,
       "position": 1,
       "username": "Roman",
     },
@@ -34,24 +34,24 @@ exports[`Analytics Controller (e2e) > GET /game/analytics/rankings > should retu
     "ranking": [
       {
         "deaths": 0,
-        "kills": 4,
+        "kills": 2,
         "position": 1,
         "username": "Roman",
       },
       {
-        "deaths": 2,
-        "kills": 2,
+        "deaths": 1,
+        "kills": 1,
         "position": 2,
         "username": "Bryan",
       },
       {
-        "deaths": 4,
-        "kills": 2,
+        "deaths": 2,
+        "kills": 1,
         "position": 3,
         "username": "Marcus",
       },
       {
-        "deaths": 2,
+        "deaths": 1,
         "kills": 0,
         "position": 4,
         "username": "Jhon",
@@ -61,7 +61,7 @@ exports[`Analytics Controller (e2e) > GET /game/analytics/rankings > should retu
     "winner": {
       "bestWeapon": "M16",
       "deaths": 0,
-      "kills": 4,
+      "kills": 2,
       "position": 1,
       "username": "Roman",
     },
@@ -72,12 +72,12 @@ exports[`Analytics Controller (e2e) > GET /game/analytics/rankings > should retu
     "ranking": [
       {
         "deaths": 0,
-        "kills": 2,
+        "kills": 1,
         "position": 1,
         "username": "Roman",
       },
       {
-        "deaths": 2,
+        "deaths": 1,
         "kills": 0,
         "position": 2,
         "username": "Marcus",
@@ -87,7 +87,7 @@ exports[`Analytics Controller (e2e) > GET /game/analytics/rankings > should retu
     "winner": {
       "bestWeapon": "M16",
       "deaths": 0,
-      "kills": 2,
+      "kills": 1,
       "position": 1,
       "username": "Roman",
     },

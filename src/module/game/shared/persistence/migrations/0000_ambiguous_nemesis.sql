@@ -3,8 +3,8 @@ CREATE SCHEMA "match_engine";
 CREATE TABLE "match_engine"."frags" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"match_id" integer,
-	"killer_id" integer,
-	"victim_id" integer,
+	"killer_id" integer NOT NULL,
+	"victim_id" integer NOT NULL,
 	"weapon" varchar(50) NOT NULL,
 	"occurred_at" timestamp NOT NULL
 );

@@ -1,19 +1,39 @@
 import { InferSelectModel, relations } from "drizzle-orm";
-import { integer, serial, timestamp, varchar } from "drizzle-orm/pg-core";
+import {
+	integer,
+	serial,
+	timestamp,
+	unique,
+	varchar,
+} from "drizzle-orm/pg-core";
 import { match, player } from ".";
 import { matchEngineSchema } from "./schema";
 
-export const frags = matchEngineSchema.table("frags", {
-	id: serial("id").primaryKey(),
-	matchId: integer("match_id")
-		.references(() => match.id)
-		.notNull(),
-	// nullable to <WORLD>
-	killerId: integer("killer_id").references(() => player.id),
-	victimId: integer("victim_id").references(() => player.id),
-	weapon: varchar("weapon", { length: 50 }).notNull(),
-	occurredAt: timestamp("occurred_at").notNull(),
-});
+export const frags = matchEngineSchema.table(
+	"frags",
+	{
+		id: serial("id").primaryKey(),
+		matchId: integer("match_id")
+			.references(() => match.id)
+			.notNull(),
+		killerId: integer("killer_id")
+			.references(() => player.id)
+			.notNull(),
+		victimId: integer("victim_id")
+			.references(() => player.id)
+			.notNull(),
+		weapon: varchar("weapon", { length: 50 }).notNull(),
+		occurredAt: timestamp("occurred_at").notNull(),
+	},
+	(t) => [
+		unique("frags_match_killer_victim_occurred_at_unique").on(
+			t.matchId,
+			t.killerId,
+			t.victimId,
+			t.occurredAt,
+		),
+	],
+);
 
 export const fragsRelations = relations(frags, ({ one }) => ({
 	match: one(match, {

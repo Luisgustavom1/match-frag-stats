@@ -1,0 +1,1 @@
+ALTER TABLE "match_engine"."frags" ADD CONSTRAINT "frags_match_killer_victim_occurred_at_unique" UNIQUE("match_id","killer_id","victim_id","occurred_at");
