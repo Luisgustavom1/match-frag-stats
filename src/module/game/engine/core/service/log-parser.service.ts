@@ -15,23 +15,26 @@ export class LogParserService {
 
 	constructor(private readonly logger: AppLogger) {}
 
-	parse(logBuffer: Buffer): MatchModel[] {
+	parseBuffer(logBuffer: Buffer, matchInProgress?: MatchModel): MatchModel[] {
 		if (!logBuffer || logBuffer.length === 0) {
 			this.logger.log("empty log received");
 			return [];
 		}
 
-		const matches: MatchModel[] = [];
-		let lastStartedMatch: MatchModel | null = null;
-		for (const line of this.iterateLines(logBuffer)) {
-			const match = this.processLine(line, lastStartedMatch);
-			if (!match) continue;
+		const matchesMapByExtId: Map<string, MatchModel> = new Map();
 
-			if (match !== lastStartedMatch) matches.push(match);
-			lastStartedMatch = match;
+		let currentMatch: MatchModel | undefined = matchInProgress;
+		for (const line of this.iterateLines(logBuffer)) {
+			const trimmedLine = line.trim();
+			if (!trimmedLine.length) continue;
+
+			const match = this.processLine(line, currentMatch);
+			matchesMapByExtId.set(match.externalId, match);
+
+			currentMatch = match.isEnded() ? undefined : match;
 		}
 
-		return matches;
+		return [...matchesMapByExtId.values()];
 	}
 
 	private *iterateLines(input: Buffer): Generator<string> {
@@ -46,14 +49,8 @@ export class LogParserService {
 		if (start < input.length) yield input.toString("utf8", start);
 	}
 
-	private processLine(
-		line: string,
-		lastStartedMatch: MatchModel | null,
-	): MatchModel | undefined {
-		const trimmedLine = line.trim();
-		if (trimmedLine.length === 0) return;
-
-		const lineSplitted = trimmedLine.split(" - ");
+	public processLine(line: string, matchInProgress?: MatchModel): MatchModel {
+		const lineSplitted = line.split(" - ");
 		const timestampStr = lineSplitted[0];
 		const timestamp = this.parseTimestamp(timestampStr);
 
@@ -63,7 +60,7 @@ export class LogParserService {
 		if (matchStart) {
 			const [, matchId] = matchStart;
 
-			if (lastStartedMatch && !lastStartedMatch.isEnded()) {
+			if (matchInProgress && !matchInProgress.isEnded()) {
 				throw new BadRequestException("Match already started", {
 					cause: { matchId },
 				});
@@ -78,7 +75,7 @@ export class LogParserService {
 			return newMatch;
 		}
 
-		if (!lastStartedMatch) {
+		if (!matchInProgress || matchInProgress.isEnded()) {
 			throw new BadRequestException("match not started", {
 				cause: { logEventStr },
 			});
@@ -87,20 +84,20 @@ export class LogParserService {
 		const matchEnd = this.PATTERNS.matchEnd.exec(logEventStr);
 		if (matchEnd) {
 			const [, matchId] = matchEnd;
-			if (lastStartedMatch.externalId !== matchId) {
+			if (matchInProgress.externalId !== matchId) {
 				throw new BadRequestException("try ending match without start", {
 					cause: { matchId },
 				});
 			}
 
-			lastStartedMatch.markAsEnd(timestamp);
+			matchInProgress.markAsEnd(timestamp);
 
-			return lastStartedMatch;
+			return matchInProgress;
 		}
 
 		const worldKill = this.PATTERNS.worldKill.exec(logEventStr);
 		// world kill will be disregarded
-		if (worldKill) return;
+		if (worldKill) return matchInProgress;
 
 		const playerKill = this.PATTERNS.playerKill.exec(logEventStr);
 		if (playerKill) {
@@ -109,18 +106,17 @@ export class LogParserService {
 			const frags = new FragsModel({
 				killerUsername: killer,
 				victimUsername: victim,
-				matchExternalId: lastStartedMatch.externalId,
+				matchExternalId: matchInProgress.externalId,
 				weapon,
 				occurredAt: timestamp,
 			});
 
-			lastStartedMatch.addFrag(frags);
-			return lastStartedMatch;
+			matchInProgress.addFrag(frags);
+			return matchInProgress;
 		}
 
-		if (trimmedLine.length > 0) {
-			this.logger.log("unrecognized log line", { line: trimmedLine });
-		}
+		this.logger.log("unrecognized log line", { line });
+		return matchInProgress;
 	}
 
 	/**

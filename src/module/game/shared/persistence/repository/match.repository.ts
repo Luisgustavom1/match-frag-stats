@@ -3,7 +3,7 @@ import { MatchModel } from "@src/module/game/engine/core/model/match.model";
 import { DatabaseConnection } from "@src/module/shared/persistence/drizzle/connection";
 import { DATABASE_CONNECTION } from "@src/module/shared/persistence/drizzle/drizzle-persistence.module";
 import { Transaction } from "@src/module/shared/persistence/drizzle/type";
-import { asc, eq, inArray, sql } from "drizzle-orm";
+import { asc, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { frags } from "../entity/frags.entity";
 import { match } from "../entity/match.entity";
@@ -24,9 +24,10 @@ export class MatchRepository {
 	): Promise<MatchModel[]> {
 		if (!matches.length) return [];
 
+		const toInsert = matches.map(MatchMapper.toEntity);
 		const upsertedMatches = await (tx || this.dbConn)
 			.insert(match)
-			.values(matches.map((m) => MatchMapper.toEntity(m)))
+			.values(toInsert)
 			.onConflictDoUpdate({
 				target: match.externalId,
 				set: {
@@ -94,5 +95,16 @@ export class MatchRepository {
 		};
 
 		return hydrateMatches(results);
+	}
+
+	async findLastInProgress(): Promise<MatchModel | undefined> {
+		const result = await this.dbConn
+			.select()
+			.from(match)
+			.where(isNull(match.endedAt))
+			.orderBy(desc(match.startedAt))
+			.limit(1);
+
+		return result[0] ? MatchMapper.toDomain(result[0]) : undefined;
 	}
 }

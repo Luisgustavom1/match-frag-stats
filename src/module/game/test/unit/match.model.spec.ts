@@ -84,11 +84,15 @@ describe("MatchModel", () => {
 			expect(match.endedAt).toEqual(endedAt);
 		});
 
-		it("should throw error when try end match already ended", () => {
+		it("should not change endedAt when when try end match already ended", () => {
 			const match = makeMatch();
-			match.markAsEnd(new Date());
+			const firstEndedAt = new Date();
+			match.markAsEnd(firstEndedAt);
 
-			expect(() => match.markAsEnd(new Date())).toThrow(BadRequestException);
+			const secondEndedAt = new Date(Date.now() + 1000);
+			match.markAsEnd(secondEndedAt);
+
+			expect(match.endedAt).toEqual(firstEndedAt);
 		});
 	});
 });

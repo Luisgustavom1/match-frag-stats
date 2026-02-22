@@ -8,6 +8,7 @@ import { frags } from "@src/module/game/shared/persistence/entity/frags.entity";
 import { match } from "@src/module/game/shared/persistence/entity/match.entity";
 import { player } from "@src/module/game/shared/persistence/entity/player.entity";
 import { DATABASE_CONNECTION } from "@src/module/shared/persistence/drizzle/drizzle-persistence.module";
+import { eq, inArray } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import request from "supertest";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
@@ -106,7 +107,7 @@ describe("Ingest Log Controller (e2e)", () => {
 
 		it("should ingest log file when matches no has frags", async () => {
 			const log = Buffer.from(`
-						23/04/2019 15:34:22 - New match 1 has started
+23/04/2019 15:34:22 - New match 1 has started
 23/04/2019 15:39:22 - Match 1 has ended
 
 23/04/2021 16:14:22 - New match 2 has started
@@ -240,6 +241,63 @@ describe("Ingest Log Controller (e2e)", () => {
 			const response = await ingestLogReq(app).expect(400);
 
 			expect(response.body).toHaveProperty("message", "File is required");
+		});
+
+		it("should inject correctly three logs - 1 log with a match that not end -> 1 log with some frags -> 1 log ending the match", async () => {
+			const log1 = Buffer.from(`
+23/04/2019 15:34:22 - New match 1 has started
+23/04/2019 15:36:04 - Bob killed Alice using M16
+23/04/2019 15:39:22 - Match 1 has ended
+
+23/04/2019 15:34:22 - New match 2 has started
+			`);
+
+			const log2 = Buffer.from(`
+23/04/2019 15:36:04 - Alice killed Bob using M16
+			`);
+
+			const log3 = Buffer.from(`
+23/04/2019 15:39:22 - Match 2 has ended
+			`);
+
+			await ingestLogReq(app)
+				.attach("log", log1, {
+					filename: "test.log",
+					contentType: "text/plain",
+				})
+				.expect(201);
+
+			const [match_1, match_2] = await dbConn
+				.select()
+				.from(match)
+				.where(inArray(match.externalId, ["1", "2"]));
+			expect(match_1.endedAt).toBeInstanceOf(Date);
+			expect(match_2.endedAt).toBeNull();
+
+			await ingestLogReq(app)
+				.attach("log", log2, {
+					filename: "test.log",
+					contentType: "text/plain",
+				})
+				.expect(201);
+
+			const newFrag = await dbConn
+				.select()
+				.from(frags)
+				.where(eq(frags.matchId, match_2.id));
+			expect(newFrag).toHaveLength(1);
+
+			await ingestLogReq(app)
+				.attach("log", log3, {
+					filename: "test.log",
+					contentType: "text/plain",
+				})
+				.expect(201);
+			const [updatedMatch2] = await dbConn
+				.select()
+				.from(match)
+				.where(eq(match.externalId, "2"));
+			expect(updatedMatch2.endedAt).toBeInstanceOf(Date);
 		});
 	});
 });

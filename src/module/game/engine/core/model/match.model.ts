@@ -17,12 +17,12 @@ export class MatchModel {
 		id?: number;
 		externalId: string;
 		startedAt: Date;
-		endedAt: Date | null;
+		endedAt?: Date | null;
 	}) {
 		this.id = params.id ?? 0;
 		this.externalId = params.externalId;
 		this.startedAt = params.startedAt;
-		this._endedAt = params.endedAt;
+		this._endedAt = params.endedAt || null;
 	}
 
 	get endedAt(): Date | null {
@@ -42,12 +42,8 @@ export class MatchModel {
 	}
 
 	markAsEnd(endedAt: Date): void {
-		if (this.isEnded()) {
-			throw new BadRequestException(`match is already ended`, {
-				cause: { matchId: this.externalId },
-			});
-		}
-		this._endedAt = endedAt;
+		// endedAt is set only the first time markAsEnd is called, subsequent calls will be ignored
+		this._endedAt = this._endedAt || endedAt;
 	}
 
 	addFrag(frag: FragsModel): void {

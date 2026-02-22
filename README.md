@@ -167,6 +167,7 @@ pnpm game:db:generate
 
 ## Observações
 
+- **Ingestão multi-arquivo**: uma partida pode ser distribuída em múltiplos uploads de log. Se uma partida estiver em andamento no banco (sem `endedAt`), o próximo upload é automaticamente continuado a partir dela — frags e o evento de fim são associados à partida já existente.
 - **Idempotência na ingestão**: o ingest usa `onConflictDoNothing` nas operações de insert em lote, tornando seguro re-ingerir o mesmo log sem duplicar dados (apenas os frags que são inseridos novamente).
 - **Transação única por ingest**: players, matches, frags são persistidos em uma única transação para garantir consistência.
 - **Awards** (próxima feature): ao final de cada partida serão calculados e persistidos awards como `FLAWLESS_VICTORY` e `KILLING_SPREE`.

@@ -64,9 +64,9 @@ Responsável por receber o arquivo de log bruto, interpretá-lo e persistir o re
 
 | Componente | Responsabilidade |
 |---|---|
-| `LogParserService` | Parseia o texto do log e constrói os `MatchModel` com seus frags |
-| `IngestLogUseCase` | Orquestra: parse → persistência → cálculo de ranking imediato |
-| `IngestLogController` | Recebe o upload de arquivo (`multipart/form-data`) e retorna o resultado |
+| `LogParserService` | Parseia o `Buffer` do log linha a linha (via generator) e constrói os `MatchModel` com seus frags; aceita um `MatchModel` em andamento para continuar parsing entre uploads |
+| `IngestLogUseCase` | Orquestra: busca partida em andamento no banco → parse → persistência → cálculo de ranking imediato |
+| `IngestLogController` | Recebe o upload de arquivo (`multipart/form-data`) e passa o `Buffer` diretamente ao use case |
 
 ### `analytics` — Contexto de Rankings
 
@@ -91,6 +91,7 @@ A partida é o agregado central. Ela encapsula seus frags e jogadores e controla
 - Mantém internamente um `Map<username, PlayerModel>` para garantir unicidade de jogadores
 - O método `addFrag()` é a única porta de entrada para modificar o estado do agregado
 - Limita o número máximo de jogadores por partida (`MAX_PLAYERS = 20`)
+- `markAsEnd()` é **idempotente**: chamadas subsequentes são ignoradas, preservando o `endedAt` original
 
 ```
 MatchModel (Aggregate Root)
@@ -132,6 +133,7 @@ O mesmo log pode ser submetido múltiplas vezes sem duplicar dados. Isso é gara
 
 - `onConflictDoNothing` nos inserts de frag
 - Upsert (insert ou ignorar) para players e matches baseado em chave única (`username`, `externalId`)
+- `markAsEnd()` idempotente no modelo de domínio
 
 ### `RankingCalculatorService` no `AnalyticsModule`, consumido pelo `EngineModule`
 
