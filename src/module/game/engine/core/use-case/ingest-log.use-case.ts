@@ -21,10 +21,7 @@ export class IngestLogUseCase {
 	async execute(logContent: Buffer): Promise<MatchRanking[]> {
 		const matchInProgress = await this.matchRepository.findLastInProgress();
 
-		const matches = this.logParserService.parseBuffer(
-			logContent,
-			matchInProgress,
-		);
+		const matches = this.logParserService.parse(logContent, matchInProgress);
 
 		if (!matches.length) {
 			this.logger.log("no matches found in log");

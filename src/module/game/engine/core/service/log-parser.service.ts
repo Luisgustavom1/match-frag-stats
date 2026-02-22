@@ -15,8 +15,15 @@ export class LogParserService {
 
 	constructor(private readonly logger: AppLogger) {}
 
-	parseBuffer(logBuffer: Buffer, matchInProgress?: MatchModel): MatchModel[] {
-		if (!logBuffer || logBuffer.length === 0) {
+	/**
+	 * Parses the log content and returns an array of MatchModel. If matchInProgress is provided, it will be used as the initial state for parsing, allowing to continue parsing from an ongoing match.
+	 * @param logContent the log content to parse, either as a Buffer or an array of lines
+	 */
+	parse(
+		logContent: Buffer | string[],
+		matchInProgress?: MatchModel,
+	): MatchModel[] {
+		if (logContent.length === 0) {
 			this.logger.log("empty log received");
 			return [];
 		}
@@ -24,7 +31,7 @@ export class LogParserService {
 		const matchesMapByExtId: Map<string, MatchModel> = new Map();
 
 		let currentMatch: MatchModel | undefined = matchInProgress;
-		for (const line of this.iterateLines(logBuffer)) {
+		for (const line of this.iterateLines(logContent)) {
 			const trimmedLine = line.trim();
 			if (!trimmedLine.length) continue;
 
@@ -37,7 +44,14 @@ export class LogParserService {
 		return [...matchesMapByExtId.values()];
 	}
 
-	private *iterateLines(input: Buffer): Generator<string> {
+	private *iterateLines(input: Buffer | string[]): Generator<string> {
+		if (Array.isArray(input)) {
+			for (const line of input) {
+				yield line;
+			}
+			return;
+		}
+
 		let start = 0;
 		for (let end = 0; end < input.length; end++) {
 			const EOF = input[end] === "\n".charCodeAt(0); // TODO: support "\r\n" if needed

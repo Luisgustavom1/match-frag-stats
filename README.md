@@ -29,6 +29,7 @@ O serviço recebe um arquivo de log de uma partida (FPS), extrai os eventos de k
 | Método | Rota | Descrição |
 |---|---|---|
 | `POST` | `/game/ingest/log` | Recebe um arquivo de log (`multipart/form-data`, campo `log`) e retorna o ranking de todas as partidas encontradas |
+| `POST` | `/game/watch` | **Log Watcher em tempo real** — inicia o monitoramento contínuo de um arquivo de log no servidor; events são processados incrementalmente conforme o arquivo cresce |
 | `GET` | `/game/analytics/rankings` | Retorna rankings de partidas já persistidas; aceita filtro por `matchIds` via query string |
 | `GET` | `/health` | Verificação de saúde da aplicação |
 
@@ -168,7 +169,8 @@ pnpm game:db:generate
 ## Observações
 
 - **Ingestão multi-arquivo**: uma partida pode ser distribuída em múltiplos uploads de log. Se uma partida estiver em andamento no banco (sem `endedAt`), o próximo upload é automaticamente continuado a partir dela — frags e o evento de fim são associados à partida já existente.
-- **Idempotência na ingestão**: o ingest usa `onConflictDoNothing` nas operações de insert em lote, tornando seguro re-ingerir o mesmo log sem duplicar dados (apenas os frags que são inseridos novamente).
+- **Idempotência na ingestão**: o ingest usa `onConflictDoNothing` nas operações de insert em lote, tornando seguro re-ingerir o mesmo log sem duplicar dados.
 - **Transação única por ingest**: players, matches, frags são persistidos em uma única transação para garantir consistência.
+- **Log Watcher em tempo real** ⚡: endpoint `POST /game/watch` recebe o caminho de um arquivo `.log` no servidor e passa a monitorá-lo continuamente via [chokidar](https://github.com/paulmillr/chokidar). A cada modificação, apenas os **bytes novos** são lidos (cursor incremental), evitando reprocessamento. As linhas são parseadas pelo mesmo pipeline da ingestão manual e persistidas em tempo real, permitindo acompanhar uma partida ao vivo sem necessidade de uploads manuais.
 - **Awards** (próxima feature): ao final de cada partida serão calculados e persistidos awards como `FLAWLESS_VICTORY` e `KILLING_SPREE`.
 - **Variáveis de ambiente**: copie `.env.example` (se existir) ou configure as variáveis de conexão com o banco antes de rodar. O Docker Compose utiliza usuário/senha `frag_stats` por padrão na porta `5432`.
