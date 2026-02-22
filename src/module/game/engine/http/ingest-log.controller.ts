@@ -19,8 +19,7 @@ export class IngestLogController {
 		@UploadedFile(new MatchLogValidationPipe())
 		file: Express.Multer.File,
 	): Promise<MatchRankingsAnalyticsResponseDto> {
-		const logContent = file.buffer.toString("utf-8");
-		const rankings = await this.ingestLogUseCase.execute(logContent);
+		const rankings = await this.ingestLogUseCase.execute(file.buffer);
 
 		return new MatchRankingsAnalyticsResponseDto(rankings);
 	}

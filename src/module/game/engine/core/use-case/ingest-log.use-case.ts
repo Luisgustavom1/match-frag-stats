@@ -16,7 +16,7 @@ export class IngestLogUseCase {
 		private readonly logger: AppLogger,
 	) {}
 
-	async execute(logContent: string): Promise<MatchRanking[]> {
+	async execute(logContent: Buffer): Promise<MatchRanking[]> {
 		const matches = this.logParserService.parse(logContent);
 
 		if (!matches.length) {

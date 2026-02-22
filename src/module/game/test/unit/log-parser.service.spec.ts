@@ -21,12 +21,12 @@ describe("LogParserService", () => {
 
 	describe("parse", () => {
 		it("should return empty array if try parse a empty string", () => {
-			const result = service.parse("");
+			const result = service.parse(Buffer.from(""));
 			expect(result).toEqual([]);
 		});
 
 		it("should return empty array if try parse a string with only whitespace", () => {
-			const result = service.parse("   \n\n   ");
+			const result = service.parse(Buffer.from("   \n\n   "));
 			expect(result).toEqual([]);
 		});
 
@@ -35,7 +35,7 @@ describe("LogParserService", () => {
 23/04/2019 15:36:04 - Roman killed Nick using M16
 23/04/2019 15:39:22 - Match 11348965 has ended`;
 
-			const result = service.parse(logContent);
+			const result = service.parse(Buffer.from(logContent));
 			expect(result).toHaveLength(1);
 
 			const match = result[0];
@@ -58,7 +58,7 @@ describe("LogParserService", () => {
 23/04/2019 15:36:33 - <WORLD> killed Nick by DROWN
 23/04/2019 15:39:22 - Match 11348965 has ended`;
 
-			const result = service.parse(logContent);
+			const result = service.parse(Buffer.from(logContent));
 
 			expect(result).toHaveLength(1);
 			expect(result[0].frags).toHaveLength(0);
@@ -73,7 +73,7 @@ describe("LogParserService", () => {
 23/04/2021 16:26:04 - Roman killed Marcus using M16
 23/04/2021 16:49:22 - Match 11348966 has ended`;
 
-			const result = service.parse(logContent);
+			const result = service.parse(Buffer.from(logContent));
 
 			expect(result).toHaveLength(2);
 			expect(result[0].externalId).toBe("11348965");
@@ -89,7 +89,7 @@ describe("LogParserService", () => {
 24/04/2020 19:36:33 - <WORLD> killed Marcus by DROWN
 24/04/2020 20:19:22 - Match 11348961 has ended`;
 
-			const result = service.parse(logContent);
+			const result = service.parse(Buffer.from(logContent));
 
 			expect(result).toHaveLength(1);
 			const match = result[0];
@@ -141,7 +141,7 @@ describe("LogParserService", () => {
 23/04/2021 21:49:22 - Match 11348966 has ended
 `;
 
-			const result = service.parse(logContent);
+			const result = service.parse(Buffer.from(logContent));
 
 			expect(result).toHaveLength(2);
 
@@ -198,7 +198,7 @@ describe("LogParserService", () => {
 			const logContent = `23/04/2019 15:34:22 - New match 11348965 has started
 23/04/2019 15:36:04 - Roman killed Nick using M16`;
 
-			const result = service.parse(logContent);
+			const result = service.parse(Buffer.from(logContent));
 
 			expect(result).toHaveLength(1);
 			expect(result[0].externalId).toBe("11348965");
@@ -209,7 +209,7 @@ describe("LogParserService", () => {
 		it("should throw error when try end match without start", () => {
 			const logContent = `23/04/2019 15:39:22 - Match 11348965 has ended`;
 
-			expect(() => service.parse(logContent)).toThrow(
+			expect(() => service.parse(Buffer.from(logContent))).toThrow(
 				new BadRequestException("match not started", {
 					cause: { logEventStr: "Match 11348965 has ended" },
 				}),
@@ -220,7 +220,7 @@ describe("LogParserService", () => {
 			const logContent = `23/04/2019 15:34:22 - New match 1 has started
 23/04/2019 15:39:22 - Match 2 has ended`;
 
-			expect(() => service.parse(logContent)).toThrow(
+			expect(() => service.parse(Buffer.from(logContent))).toThrow(
 				new BadRequestException("try ending match without start", {
 					cause: { matchId: "2" },
 				}),
@@ -232,7 +232,7 @@ describe("LogParserService", () => {
 23/04/2019 15:39:22 - Match 1 has ended
 23/04/2019 15:40:22 - Match 1 has ended`;
 
-			expect(() => service.parse(logContent)).toThrow(
+			expect(() => service.parse(Buffer.from(logContent))).toThrow(
 				new BadRequestException("match is already ended", {
 					cause: { matchId: "1" },
 				}),
@@ -242,7 +242,7 @@ describe("LogParserService", () => {
 		it("should parse kills outside of started match", () => {
 			const logContent = `23/04/2019 15:36:04 - Roman killed Nick using M16`;
 
-			expect(() => service.parse(logContent)).toThrow(
+			expect(() => service.parse(Buffer.from(logContent))).toThrow(
 				new BadRequestException("match not started", {
 					cause: { logEventStr: "Roman killed Nick using M16" },
 				}),
@@ -254,7 +254,7 @@ describe("LogParserService", () => {
 23/04/2019 15:35:00 - New match 11348966 has started
 23/04/2019 15:39:22 - Match 11348965 has ended`;
 
-			expect(() => service.parse(logContent)).toThrow(
+			expect(() => service.parse(Buffer.from(logContent))).toThrow(
 				new BadRequestException("Match already started", {
 					cause: { matchId: "11348966" },
 				}),
@@ -266,7 +266,7 @@ describe("LogParserService", () => {
 This is an invalid line
 23/04/2019 15:39:22 - Match 11348965 has ended`;
 
-			const result = service.parse(logContent);
+			const result = service.parse(Buffer.from(logContent));
 
 			expect(result).toHaveLength(1);
 		});
@@ -275,7 +275,7 @@ This is an invalid line
 			const logContent = `23/04/2019 15:34:22 - New match 11348965 has started
 23/04/2019 15:39:22 - Match 11348965 has ended`;
 
-			const result = service.parse(logContent);
+			const result = service.parse(Buffer.from(logContent));
 
 			expect(result).toHaveLength(1);
 			expect(result[0].frags).toHaveLength(0);
@@ -295,7 +295,9 @@ ${killLines}
 23/04/2019 15:50:00 - player1 killed player21 using AK47
 23/04/2019 15:55:00 - Match 11348965 has ended`;
 
-			expect(() => service.parse(logContent)).toThrow(BadRequestException);
+			expect(() => service.parse(Buffer.from(logContent))).toThrow(
+				BadRequestException,
+			);
 		});
 	});
 });

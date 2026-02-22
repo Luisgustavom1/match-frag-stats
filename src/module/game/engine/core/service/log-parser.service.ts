@@ -15,18 +15,15 @@ export class LogParserService {
 
 	constructor(private readonly logger: AppLogger) {}
 
-	parse(logContent: string): MatchModel[] {
-		if (!logContent || logContent.trim() === "") {
+	parse(logBuffer: Buffer): MatchModel[] {
+		if (!logBuffer || logBuffer.length === 0) {
 			this.logger.log("empty log received");
 			return [];
 		}
 
-		// TODO: improve parsing performance by streaming the file line by line instead of loading entire content into memory
-		const lines = logContent.split("\n");
 		const matches: MatchModel[] = [];
-
 		let lastStartedMatch: MatchModel | null = null;
-		for (const line of lines) {
+		for (const line of this.iterateLines(logBuffer)) {
 			const match = this.processLine(line, lastStartedMatch);
 			if (!match) continue;
 
@@ -35,6 +32,18 @@ export class LogParserService {
 		}
 
 		return matches;
+	}
+
+	private *iterateLines(input: Buffer): Generator<string> {
+		let start = 0;
+		for (let end = 0; end < input.length; end++) {
+			const EOF = input[end] === "\n".charCodeAt(0); // TODO: support "\r\n" if needed
+			if (!EOF) continue;
+			if (end > start) yield input.toString("utf8", start, end);
+			start = end + 1;
+		}
+		// handle last line without newline
+		if (start < input.length) yield input.toString("utf8", start);
 	}
 
 	private processLine(
@@ -66,7 +75,6 @@ export class LogParserService {
 				endedAt: null,
 			});
 
-			this.logger.log("match started", { matchId, startedAt: timestamp });
 			return newMatch;
 		}
 
@@ -87,7 +95,6 @@ export class LogParserService {
 
 			lastStartedMatch.markAsEnd(timestamp);
 
-			this.logger.log("match ended", { matchId, endedAt: timestamp });
 			return lastStartedMatch;
 		}
 
