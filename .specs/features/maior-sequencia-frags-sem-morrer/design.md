@@ -9,6 +9,7 @@ Adicionar a métrica de streak por jogador e streak máxima da partida sem quebr
 - O cálculo de ranking é feito em `RankingCalculatorService.calculate(frags)`.
 - O retorno por partida é montado em `RankMatchesUseCase` e serializado em DTO de analytics.
 - O parser atual ignora eventos `<WORLD> killed ...`, portanto mortes por WORLD não entram na cadeia de cálculo.
+- Streak de morte é resetada por qualquer morte (independente de ser causada por jogador ou evento ambiental WORLD).
 
 ## Decisão de Arquitetura
 
@@ -22,7 +23,7 @@ Adicionar a métrica de streak por jogador e streak máxima da partida sem quebr
 - kills desc
 - deaths asc
 
-3. Introduzir suporte explícito para mortes por WORLD na ingestão, para cumprir a regra de reset de streak por morte do jogador.
+3. Manter comportamento atual: descartar eventos `<WORLD> killed ...` na ingestão, sem mudanças no parser.
 
 ### Mudanças por Componente
 
@@ -32,35 +33,25 @@ Arquivo alvo:
 - `src/module/game/engine/core/service/log-parser.service.ts`
 
 Mudança:
-- Deixar de descartar linha de world kill.
-- Converter world kill em evento interno de frag especial, com marcador de killer WORLD.
-
-Opção escolhida:
-- Criar `FragsModel` com `killerUsername = "<WORLD>"` e manter `victimUsername` e `occurredAt`.
+- **Nenhuma mudança** — continua descartando linhas de world kill como atualmente.
 
 Racional:
-- Menor impacto estrutural
-- Reaproveita pipeline existente (match -> persistence -> analytics)
-- Permite reset da streak da vítima na análise
+- Mundo (WORLD) não é jogador e não participa de ranking
+- Manutenção da simplicidade: frags só incluem player-vs-player kills
+- Comportamento estável já em produção
 
 #### 2) Persistência de frags
 
-Arquivos alvo:
+Arquivo alvo:
 - `src/module/game/engine/persistence/service/match-aggregate.persistence.service.ts`
 - `src/module/game/shared/persistence/repository/match.repository.ts`
 
 Mudança:
-- Persistir frag de WORLD sem depender de `killerId` obrigatório.
-
-Ajuste esperado:
-- `killerId` em frags precisa aceitar null para world kill, ou criar registro técnico WORLD em player.
-
-Opção preferida:
-- `killerId` nullable para representar evento ambiental.
+- **Nenhuma mudança** — frags continuam sendo only player-to-player kills.
 
 Racional:
-- Evita poluir ranking com jogador técnico WORLD
-- Modela corretamente semântica de evento
+- Schema e repositório já atendem ao requisito
+- `killerId` permanece obrigatório (sempre é um jogador)
 
 #### 3) Cálculo de ranking + streak
 
@@ -80,12 +71,10 @@ Algoritmo (O(n)):
 - Estado em memória:
   - `statsMapByPlayer: Map<username, { kills, deaths, maxStreak, currentStreak }>`
 - Para cada frag em ordem:
-  - Se killer != `<WORLD>`:
-    - incrementa `kills` e `currentStreak` do killer
-    - `maxStreak = max(maxStreak, currentStreak)`
-  - Sempre para vítima:
-    - incrementa `deaths`
-    - zera `currentStreak`
+  - Incrementa `kills` e `currentStreak` do killer
+  - `maxStreak = max(maxStreak, currentStreak)` do killer
+  - Incrementa `deaths` da vítima
+  - Zera `currentStreak` da vítima
 - Pós-processamento:
   - gera ranking sem `currentStreak`
   - ordena por kills desc e deaths asc
@@ -141,7 +130,7 @@ interface PlayerStats {
 
 ## Fluxo de Dados
 
-1. Ingestão lê log e inclui player kills e world kills.
+1. Ingestão lê log e produz player-to-player frags (WORLD kills descartados).
 2. Persistência grava frags preservando ordem temporal.
 3. MatchRepository hidrata frags ordenados por `occurredAt`.
 4. RankingCalculator computa ranking e streak no mesmo loop.
@@ -164,9 +153,8 @@ Alvo principal:
 Casos mínimos:
 1. streak simples crescente (3 kills sem morrer -> maxStreak 3)
 2. reset após morte (2 kills, morre, 1 kill -> maxStreak 2)
-3. morte por WORLD reseta streak da vítima
-4. empate topStreak retorna múltiplos usernames
-5. partida sem frags -> ranking vazio, topStreak 0
+3. empate topStreak retorna múltiplos usernames
+4. partida sem frags -> ranking vazio, topStreak 0
 
 ## E2E tests
 
@@ -176,31 +164,26 @@ Alvo:
 Cobertura:
 1. payload inclui `maxStreak` por jogador
 2. payload inclui `topStreak` por partida
-3. cenário com WORLD kill refletindo reset de streak
-4. snapshots atualizados
+3. snapshots atualizados
 
 ## Riscos Técnicos
 
-1. Persistência atual pode descartar frag com killer ausente
-- Mitigação: ajustar schema/repositório para `killerId` nullable
-
-2. Reordenação de frags pode alterar streak
+1. Reordenação de frags pode alterar streak
 - Mitigação: manter ordenação explícita por `occurredAt` e critério secundário estável (id)
 
-3. Efeito colateral em winner/bestWeapon
-- Mitigação: garantir que cálculo de winner ignore WORLD no mesmo critério atual
+2. Efeito colateral em winner/bestWeapon
+- Mitigação: garantir que cálculo de winner mantém critério atual
 
 ## Plano de Implementação (resumo)
 
-1. Ajustar parser para produzir evento de world kill
-2. Ajustar persistência para aceitar world kill
-3. Evoluir cálculo para `maxStreak` e `topStreak`
-4. Propagar em use case e DTO
-5. Atualizar testes unit e e2e
+1. Evoluir cálculo em `RankingCalculatorService` para produzir `maxStreak` e `topStreak`
+2. Propagar resultado em use case e DTO
+3. Atualizar testes unit e e2e
 
 ## Decisões Fechadas neste Design
 
-- WORLD não entra em ranking nem em topStreak.players
-- WORLD kill reseta streak da vítima
-- topStreak.players retorna usernames
+- WORLD kills continuam sendo descartados na ingestão (comportamento atual preservado)
+- Frags persistidas são apenas player-to-player kills
+- Streak é resetada por qualquer morte (sem lógica especial de WORLD)
+- topStreak.players retorna usernames de jogadores reais
 - complexidade alvo: O(n) por partida
